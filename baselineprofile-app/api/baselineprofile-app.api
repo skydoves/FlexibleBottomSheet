@@ -1,0 +1,41 @@
+public final class com/skydoves/flexible/baselineprofile/app/BuildConfig {
+	public static final field APPLICATION_ID Ljava/lang/String;
+	public static final field BUILD_TYPE Ljava/lang/String;
+	public static final field DEBUG Z
+	public fun <init> ()V
+}
+
+public final class com/skydoves/flexible/baselineprofile/app/ComposableSingletons$FlexibleBottomSheetMaterial3Kt {
+	public static final field INSTANCE Lcom/skydoves/flexible/baselineprofile/app/ComposableSingletons$FlexibleBottomSheetMaterial3Kt;
+	public static field lambda-1 Lkotlin/jvm/functions/Function3;
+	public fun <init> ()V
+	public final fun getLambda-1$baselineprofile_app_release ()Lkotlin/jvm/functions/Function3;
+}
+
+public final class com/skydoves/flexible/baselineprofile/app/ComposableSingletons$FlexibleBottomSheetMaterialKt {
+	public static final field INSTANCE Lcom/skydoves/flexible/baselineprofile/app/ComposableSingletons$FlexibleBottomSheetMaterialKt;
+	public static field lambda-1 Lkotlin/jvm/functions/Function3;
+	public fun <init> ()V
+	public final fun getLambda-1$baselineprofile_app_release ()Lkotlin/jvm/functions/Function3;
+}
+
+public final class com/skydoves/flexible/baselineprofile/app/ComposableSingletons$MainActivityKt {
+	public static final field INSTANCE Lcom/skydoves/flexible/baselineprofile/app/ComposableSingletons$MainActivityKt;
+	public static field lambda-1 Lkotlin/jvm/functions/Function2;
+	public fun <init> ()V
+	public final fun getLambda-1$baselineprofile_app_release ()Lkotlin/jvm/functions/Function2;
+}
+
+public final class com/skydoves/flexible/baselineprofile/app/FlexibleBottomSheetMaterial3Kt {
+	public static final fun FlexibleBottomSheetMaterial3 (Landroidx/compose/runtime/Composer;I)V
+}
+
+public final class com/skydoves/flexible/baselineprofile/app/FlexibleBottomSheetMaterialKt {
+	public static final fun FlexibleBottomSheetMaterial (Landroidx/compose/runtime/Composer;I)V
+}
+
+public final class com/skydoves/flexible/baselineprofile/app/MainActivity : androidx/activity/ComponentActivity {
+	public static final field $stable I
+	public fun <init> ()V
+}
+
