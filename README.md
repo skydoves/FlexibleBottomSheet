@@ -246,7 +246,7 @@ You can also implemetn dynamical content by utilizing with Compose animation lib
 
 `FlexibleBottomSheet` inherently supports nested scrolling, allowing seamless integration with components like `LazyColumn`, `LazyRow`, and others. However, if you wish to disable nested scrolling, you can achieve this by setting `allowNestedScroll` to `false` within the `rememberFlexibleBottomSheetState`.
 
-```koylin
+```kotlin
 FlexibleBottomSheet(
   onDismissRequest = onDismissRequest,
   sheetState = rememberFlexibleBottomSheetState(
