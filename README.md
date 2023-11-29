@@ -19,7 +19,7 @@
 </p>
 
 ## Download
-[![Maven Central](https://img.shields.io/maven-central/v/com.github.skydoves/flexiblebottomsheet.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.github.skydoves%22%20AND%20a:%22flexiblebottomsheet%22)
+[![Maven Central](https://img.shields.io/maven-central/v/com.github.skydoves/flexible-core.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.github.skydoves%22%20AND%20a:%22flexible-core%22)
 
 ### Gradle
 
