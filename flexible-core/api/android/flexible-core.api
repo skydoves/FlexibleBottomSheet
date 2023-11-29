@@ -10,7 +10,6 @@ public final class com/skydoves/flexible/core/ComposableSingletons$FlexibleBotto
 }
 
 public final class com/skydoves/flexible/core/FlexibleBottomSheetPopupKt {
-	public static final fun FlexibleBottomSheetPopup (Lkotlin/jvm/functions/Function0;Landroidx/compose/foundation/layout/WindowInsets;Lcom/skydoves/flexible/core/FlexibleSheetState;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;I)V
 }
 
 public final class com/skydoves/flexible/core/FlexibleSheetSize {
@@ -67,9 +66,6 @@ public final class com/skydoves/flexible/core/FlexibleSheetState {
 }
 
 public final class com/skydoves/flexible/core/FlexibleSheetStateKt {
-	public static final fun consumeSwipeWithinBottomSheetBoundsNestedScrollConnection (Lcom/skydoves/flexible/core/FlexibleSheetState;Landroidx/compose/foundation/gestures/Orientation;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Landroidx/compose/ui/input/nestedscroll/NestedScrollConnection;
-	public static synthetic fun consumeSwipeWithinBottomSheetBoundsNestedScrollConnection$default (Lcom/skydoves/flexible/core/FlexibleSheetState;Landroidx/compose/foundation/gestures/Orientation;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Landroidx/compose/ui/input/nestedscroll/NestedScrollConnection;
-	public static final fun emptySwipeWithinBottomSheetBoundsNestedScrollConnection ()Landroidx/compose/ui/input/nestedscroll/NestedScrollConnection;
 	public static final fun rememberFlexibleBottomSheetState (ZZZZZLandroidx/compose/animation/core/AnimationSpec;Lcom/skydoves/flexible/core/FlexibleSheetSize;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)Lcom/skydoves/flexible/core/FlexibleSheetState;
 }
 
@@ -84,9 +80,6 @@ public final class com/skydoves/flexible/core/FlexibleSheetValue : java/lang/Enu
 }
 
 public final class com/skydoves/flexible/core/FlexibleSwipeableKt {
-	public static final fun flexibleBottomSheetAnchorChangeHandler (Lcom/skydoves/flexible/core/FlexibleSheetState;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function1;)Lcom/skydoves/flexible/core/AnchorChangeHandler;
-	public static final fun flexibleBottomSheetSwipeable (Landroidx/compose/ui/Modifier;Lcom/skydoves/flexible/core/FlexibleSheetState;Lcom/skydoves/flexible/core/FlexibleSheetSize;Lcom/skydoves/flexible/core/AnchorChangeHandler;FFFZLkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function2;)Landroidx/compose/ui/Modifier;
-	public static synthetic fun flexibleBottomSheetSwipeable$default (Landroidx/compose/ui/Modifier;Lcom/skydoves/flexible/core/FlexibleSheetState;Lcom/skydoves/flexible/core/FlexibleSheetSize;Lcom/skydoves/flexible/core/AnchorChangeHandler;FFFZLkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Landroidx/compose/ui/Modifier;
 }
 
 public abstract interface annotation class com/skydoves/flexible/core/InternalFlexibleApi : java/lang/annotation/Annotation {
@@ -101,15 +94,6 @@ public final class com/skydoves/flexible/core/SheetPaddingsKt {
 }
 
 public final class com/skydoves/flexible/core/SizeKt {
-	public static final fun toPx-8Feqmps (FLandroidx/compose/runtime/Composer;I)F
-}
-
-public final class com/skydoves/flexible/core/SwipeableV2Defaults {
-	public static final field $stable I
-	public static final field INSTANCE Lcom/skydoves/flexible/core/SwipeableV2Defaults;
-	public final fun getAnimationSpec ()Landroidx/compose/animation/core/AnimationSpec;
-	public final fun getPositionalThreshold ()Lkotlin/jvm/functions/Function2;
-	public final fun getVelocityThreshold-D9Ej5fM ()F
 }
 
 public final class com/skydoves/flexible/core/SwipeableV2Kt {
