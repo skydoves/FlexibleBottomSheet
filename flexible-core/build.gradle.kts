@@ -28,21 +28,6 @@ mavenPublishing {
 kotlin {
   androidTarget { publishLibraryVariants("release") }
 
-  jvm("desktop")
-
-  iosX64()
-  iosArm64()
-  iosSimulatorArm64()
-
-  macosX64()
-  macosArm64()
-
-  js(IR) {
-    browser()
-  }
-
-  applyDefaultHierarchyTemplate()
-
   sourceSets {
     all {
       languageSettings.optIn("com.skydoves.flexible.core.InternalFlexibleApi")
