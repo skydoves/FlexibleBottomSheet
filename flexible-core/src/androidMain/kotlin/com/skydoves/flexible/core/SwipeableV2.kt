@@ -71,6 +71,8 @@ import kotlin.math.abs
  */
 
 /**
+ * https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:wear/compose/compose-foundation/src/main/java/androidx/wear/compose/foundation/SwipeableV2.kt;l=92?q=swipeableV2&sq=
+ *
  * Enable swipe gestures between a set of predefined values.
  *
  * When a swipe is detected, the offset of the [SwipeableV2State] will be updated with the swipe
