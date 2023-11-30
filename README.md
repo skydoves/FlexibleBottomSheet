@@ -237,7 +237,7 @@ FlexibleBottomSheet(
 }
 ```
 
-You can also implemetn dynamical content by utilizing with Compose animation library [Orbital](https://github.com/skydoves/Orbital).
+You can also implement dynamical content by utilizing with Compose animation library [Orbital](https://github.com/skydoves/Orbital).
 
 <img src="previews/preview9.gif" width="320px" align="cemter">
 
