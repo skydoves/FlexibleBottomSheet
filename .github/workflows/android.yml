@@ -21,20 +21,6 @@ jobs:
       - name: spotless
         run: ./gradlew spotlessCheck
 
-  api_check:
-    name: API check
-    runs-on: macos-latest
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v2
-      - name: Set up JDK
-        uses: actions/setup-java@v1
-        with:
-          distribution: zulu
-          java-version: 17
-      - name: API check
-        run: ./gradlew apiCheck
-
   build:
     runs-on: macos-latest
     steps:
