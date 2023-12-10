@@ -1,0 +1,135 @@
+public abstract interface class com/skydoves/flexible/core/AnchorChangeHandler {
+	public abstract fun onAnchorsChanged (Ljava/lang/Object;Ljava/util/Map;Ljava/util/Map;)V
+}
+
+public final class com/skydoves/flexible/core/ComposableSingletons$FlexibleBottomSheetPopupKt {
+	public static final field INSTANCE Lcom/skydoves/flexible/core/ComposableSingletons$FlexibleBottomSheetPopupKt;
+	public static field lambda-1 Lkotlin/jvm/functions/Function2;
+	public fun <init> ()V
+	public final fun getLambda-1$flexible_core_release ()Lkotlin/jvm/functions/Function2;
+}
+
+public final class com/skydoves/flexible/core/FlexibleBottomSheetPopupKt {
+}
+
+public final class com/skydoves/flexible/core/FlexibleSheetSize {
+	public static final field $stable I
+	public fun <init> ()V
+	public fun <init> (FFF)V
+	public synthetic fun <init> (FFFILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()F
+	public final fun component2 ()F
+	public final fun component3 ()F
+	public final fun copy (FFF)Lcom/skydoves/flexible/core/FlexibleSheetSize;
+	public static synthetic fun copy$default (Lcom/skydoves/flexible/core/FlexibleSheetSize;FFFILjava/lang/Object;)Lcom/skydoves/flexible/core/FlexibleSheetSize;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getFullyExpanded ()F
+	public final fun getIntermediatelyExpanded ()F
+	public final fun getSlightlyExpanded ()F
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/skydoves/flexible/core/FlexibleSheetState {
+	public static final field $stable I
+	public fun <init> (ZZLcom/skydoves/flexible/core/FlexibleSheetSize;ZZZLandroidx/compose/animation/core/AnimationSpec;Lcom/skydoves/flexible/core/FlexibleSheetValue;Lkotlin/jvm/functions/Function1;Z)V
+	public synthetic fun <init> (ZZLcom/skydoves/flexible/core/FlexibleSheetSize;ZZZLandroidx/compose/animation/core/AnimationSpec;Lcom/skydoves/flexible/core/FlexibleSheetValue;Lkotlin/jvm/functions/Function1;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun animateTo (Lcom/skydoves/flexible/core/FlexibleSheetValue;FLandroidx/compose/animation/core/AnimationSpec;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun animateTo$default (Lcom/skydoves/flexible/core/FlexibleSheetState;Lcom/skydoves/flexible/core/FlexibleSheetValue;FLandroidx/compose/animation/core/AnimationSpec;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public final fun fullyExpand (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun getAllowNestedScroll ()Z
+	public final fun getAnimateSpec ()Landroidx/compose/animation/core/AnimationSpec;
+	public final fun getContainSystemBars ()Z
+	public final fun getCurrentValue ()Lcom/skydoves/flexible/core/FlexibleSheetValue;
+	public final fun getFlexibleSheetSize ()Lcom/skydoves/flexible/core/FlexibleSheetSize;
+	public final fun getHasFullyExpandedState ()Z
+	public final fun getHasIntermediatelyExpandedState ()Z
+	public final fun getHasSlightlyExpandedState ()Z
+	public final fun getSkipHiddenState ()Z
+	public final fun getSkipIntermediatelyExpanded ()Z
+	public final fun getSkipSlightlyExpanded ()Z
+	public final fun getSwipeableState ()Lcom/skydoves/flexible/core/SwipeableV2State;
+	public final fun getTargetValue ()Lcom/skydoves/flexible/core/FlexibleSheetValue;
+	public final fun hide (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun intermediatelyExpand (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun isAnimatingContent ()Landroidx/compose/runtime/State;
+	public final fun isModal ()Z
+	public final fun isVisible ()Z
+	public final fun requireOffset ()F
+	public final fun setSwipeableState (Lcom/skydoves/flexible/core/SwipeableV2State;)V
+	public final fun settle (FLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun show (Lcom/skydoves/flexible/core/FlexibleSheetValue;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun show$default (Lcom/skydoves/flexible/core/FlexibleSheetState;Lcom/skydoves/flexible/core/FlexibleSheetValue;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public final fun slightlyExpand (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun snapTo (Lcom/skydoves/flexible/core/FlexibleSheetValue;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun trySnapTo (Lcom/skydoves/flexible/core/FlexibleSheetValue;)Z
+}
+
+public final class com/skydoves/flexible/core/FlexibleSheetStateKt {
+	public static final fun rememberFlexibleBottomSheetState (ZZZZZLandroidx/compose/animation/core/AnimationSpec;Lcom/skydoves/flexible/core/FlexibleSheetSize;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)Lcom/skydoves/flexible/core/FlexibleSheetState;
+}
+
+public final class com/skydoves/flexible/core/FlexibleSheetValue : java/lang/Enum {
+	public static final field FullyExpanded Lcom/skydoves/flexible/core/FlexibleSheetValue;
+	public static final field Hidden Lcom/skydoves/flexible/core/FlexibleSheetValue;
+	public static final field IntermediatelyExpanded Lcom/skydoves/flexible/core/FlexibleSheetValue;
+	public static final field SlightlyExpanded Lcom/skydoves/flexible/core/FlexibleSheetValue;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcom/skydoves/flexible/core/FlexibleSheetValue;
+	public static fun values ()[Lcom/skydoves/flexible/core/FlexibleSheetValue;
+}
+
+public final class com/skydoves/flexible/core/FlexibleSwipeableKt {
+}
+
+public abstract interface annotation class com/skydoves/flexible/core/InternalFlexibleApi : java/lang/annotation/Annotation {
+}
+
+public final class com/skydoves/flexible/core/ScrimKt {
+	public static final fun Scrim-3J-VO9M (JLkotlin/jvm/functions/Function0;ZLandroidx/compose/runtime/Composer;I)V
+}
+
+public final class com/skydoves/flexible/core/SheetPaddingsKt {
+	public static final fun sheetPaddings (Landroidx/compose/ui/Modifier;Lcom/skydoves/flexible/core/FlexibleSheetState;)Landroidx/compose/ui/Modifier;
+}
+
+public final class com/skydoves/flexible/core/SizeKt {
+}
+
+public final class com/skydoves/flexible/core/SwipeableV2Kt {
+	public static final fun swipeAnchors (Landroidx/compose/ui/Modifier;Lcom/skydoves/flexible/core/SwipeableV2State;Ljava/util/Set;Lcom/skydoves/flexible/core/AnchorChangeHandler;Lkotlin/jvm/functions/Function2;)Landroidx/compose/ui/Modifier;
+	public static synthetic fun swipeAnchors$default (Landroidx/compose/ui/Modifier;Lcom/skydoves/flexible/core/SwipeableV2State;Ljava/util/Set;Lcom/skydoves/flexible/core/AnchorChangeHandler;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+}
+
+public final class com/skydoves/flexible/core/SwipeableV2State {
+	public static final field $stable I
+	public static final field Companion Lcom/skydoves/flexible/core/SwipeableV2State$Companion;
+	public synthetic fun <init> (Ljava/lang/Object;Landroidx/compose/animation/core/AnimationSpec;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;FILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ljava/lang/Object;Landroidx/compose/animation/core/AnimationSpec;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;FLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun animateTo (Ljava/lang/Object;FLandroidx/compose/animation/core/AnimationSpec;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun animateTo$default (Lcom/skydoves/flexible/core/SwipeableV2State;Ljava/lang/Object;FLandroidx/compose/animation/core/AnimationSpec;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public final fun dispatchRawDelta (F)F
+	public final fun getAnchors ()Ljava/util/Map;
+	public final fun getAnimationSpec ()Landroidx/compose/animation/core/AnimationSpec;
+	public final fun getConfirmValueChange ()Lkotlin/jvm/functions/Function1;
+	public final fun getCurrentValue ()Ljava/lang/Object;
+	public final fun getLastVelocity ()F
+	public final fun getPositionalThreshold ()Lkotlin/jvm/functions/Function2;
+	public final fun getProgress ()F
+	public final fun getSwipeDraggableState ()Landroidx/compose/foundation/gestures/DraggableState;
+	public final fun getTargetValue ()Ljava/lang/Object;
+	public final fun getVelocityThreshold-D9Ej5fM ()F
+	public final fun hasAnchorForValue (Ljava/lang/Object;)Z
+	public final fun isAnimationRunning ()Z
+	public final fun isInitialized ()Z
+	public final fun requireOffset ()F
+	public final fun setAnchors (Ljava/util/Map;)V
+	public final fun setInitialized (Z)V
+	public final fun settle (FLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun snapTo (Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/skydoves/flexible/core/SwipeableV2State$Companion {
+	public final fun Saver-eqLRuRQ (Landroidx/compose/animation/core/AnimationSpec;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;F)Landroidx/compose/runtime/saveable/Saver;
+}
+

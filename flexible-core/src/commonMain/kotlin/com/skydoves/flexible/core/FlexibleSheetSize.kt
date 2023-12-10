@@ -15,20 +15,15 @@
  */
 package com.skydoves.flexible.core
 
-import androidx.annotation.FloatRange
-
 /**
  * FlexibleSheetSize constraints the content size of [FlexibleBottomSheet] based on its states.
  * These constraints are calculated by multiplying the ratio with the maximum display height.
  *
  * Three expanding states are defined: [FlexibleSheetValue.FullyExpanded], [FlexibleSheetValue.IntermediatelyExpanded], and [FlexibleSheetValue.SlightlyExpanded].
- *
- * @property fullyExpanded The content size of [FlexibleBottomSheet] when in the [FlexibleSheetValue.FullyExpanded] state.
- * @property intermediatelyExpanded The content size of [FlexibleBottomSheet] when in the [FlexibleSheetValue.IntermediatelyExpanded] state.
- * @property slightlyExpanded The content size of [FlexibleBottomSheet] when in the [FlexibleSheetValue.SlightlyExpanded] state.
+
  */
 public data class FlexibleSheetSize(
-  @FloatRange(0.0, 1.0) public val fullyExpanded: Float = 1.0f,
-  @FloatRange(0.0, 1.0) public val intermediatelyExpanded: Float = 0.5f,
-  @FloatRange(0.0, 1.0) public val slightlyExpanded: Float = 0.25f,
+  public val fullyExpanded: Float = 1.0f,
+  public val intermediatelyExpanded: Float = 0.5f,
+  public val slightlyExpanded: Float = 0.25f,
 )

@@ -42,7 +42,12 @@ import kotlinx.coroutines.sync.withLock
 /*** This is an internal copy of androidx.compose.foundation.MutatorMutex with an additional
  * tryMutate method. Do not modify, except for tryMutate. ***/
 
-internal typealias InternalAtomicReference<V> = java.util.concurrent.atomic.AtomicReference<V>
+public expect class InternalAtomicReference<V>(value: V) {
+  public fun get(): V
+  public fun set(value: V)
+  public fun getAndSet(value: V): V
+  public fun compareAndSet(expect: V, newValue: V): Boolean
+}
 
 /**
  * Mutual exclusion for UI state mutation over time.
