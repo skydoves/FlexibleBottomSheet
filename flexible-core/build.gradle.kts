@@ -83,6 +83,7 @@ kotlin {
         implementation(compose.runtime)
         implementation(compose.animation)
         implementation(compose.foundation)
+        implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.21")
       }
     }
 

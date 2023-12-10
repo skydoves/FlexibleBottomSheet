@@ -1,0 +1,24 @@
+public final class com/skydoves/flexible/bottomsheet/material3/BottomSheetDefaults {
+	public static final field $stable I
+	public static final field INSTANCE Lcom/skydoves/flexible/bottomsheet/material3/BottomSheetDefaults;
+	public final fun DragHandle-lgZ2HuY (Landroidx/compose/ui/Modifier;FFLandroidx/compose/ui/graphics/Shape;JLandroidx/compose/runtime/Composer;II)V
+	public final fun getContainerColor (Landroidx/compose/runtime/Composer;I)J
+	public final fun getElevation-D9Ej5fM ()F
+	public final fun getExpandedShape (Landroidx/compose/runtime/Composer;I)Landroidx/compose/ui/graphics/Shape;
+	public final fun getFullyExpandedShape (Landroidx/compose/runtime/Composer;I)Landroidx/compose/ui/graphics/Shape;
+	public final fun getHiddenShape (Landroidx/compose/runtime/Composer;I)Landroidx/compose/ui/graphics/Shape;
+	public final fun getScrimColor (Landroidx/compose/runtime/Composer;I)J
+	public final fun getWindowInsets (Landroidx/compose/runtime/Composer;I)Landroidx/compose/foundation/layout/WindowInsets;
+}
+
+public final class com/skydoves/flexible/bottomsheet/material3/ComposableSingletons$FlexibleBottomSheetKt {
+	public static final field INSTANCE Lcom/skydoves/flexible/bottomsheet/material3/ComposableSingletons$FlexibleBottomSheetKt;
+	public static field lambda-1 Lkotlin/jvm/functions/Function2;
+	public fun <init> ()V
+	public final fun getLambda-1$flexible_bottomsheet_material3_release ()Lkotlin/jvm/functions/Function2;
+}
+
+public final class com/skydoves/flexible/bottomsheet/material3/FlexibleBottomSheetKt {
+	public static final fun FlexibleBottomSheet-3am-VeE (Lkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;Lcom/skydoves/flexible/core/FlexibleSheetState;Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/graphics/Shape;JJFJLkotlin/jvm/functions/Function2;Landroidx/compose/foundation/layout/WindowInsets;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;III)V
+}
+

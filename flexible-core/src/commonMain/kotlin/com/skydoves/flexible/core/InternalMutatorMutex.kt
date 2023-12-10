@@ -39,14 +39,45 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
-/*** This is an internal copy of androidx.compose.foundation.MutatorMutex with an additional
- * tryMutate method. Do not modify, except for tryMutate. ***/
+internal class AtomicReference<V>(value: V) {
+  private val delegate = KAtomicReference(value)
 
-public expect class InternalAtomicReference<V>(value: V) {
-  public fun get(): V
-  public fun set(value: V)
-  public fun getAndSet(value: V): V
-  public fun compareAndSet(expect: V, newValue: V): Boolean
+  fun get(): V = delegate.value
+
+  fun set(value: V) {
+    delegate.value = value
+  }
+
+  fun getAndSet(value: V): V {
+    var old = delegate.value
+    while (!delegate.compareAndSet(old, value)) {
+      old = delegate.value
+    }
+    return old
+  }
+
+  fun compareAndSet(expect: V, newValue: V): Boolean {
+    return delegate.compareAndSet(expect, newValue)
+  }
+}
+
+internal class KAtomicReference<T>(public var value: T) {
+  public fun compareAndExchange(expected: T, new: T): T {
+    if (value == expected) {
+      val old = value
+      value = new
+      return old
+    }
+    return value
+  }
+
+  public fun compareAndSet(expected: T, new: T): Boolean {
+    if (value == expected) {
+      value = new
+      return true
+    }
+    return false
+  }
 }
 
 /**
@@ -71,7 +102,7 @@ internal class InternalMutatorMutex {
     fun cancel() = job.cancel()
   }
 
-  private val currentMutator = InternalAtomicReference<Mutator?>(null)
+  private val currentMutator = AtomicReference<Mutator?>(null)
   private val mutex = Mutex()
 
   private fun tryMutateOrCancel(mutator: Mutator) {
