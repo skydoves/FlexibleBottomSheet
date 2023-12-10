@@ -59,7 +59,7 @@ import java.util.UUID
  */
 @Composable
 @InternalFlexibleApi
-public fun FlexibleBottomSheetPopup(
+public actual fun FlexibleBottomSheetPopup(
   onDismissRequest: () -> Unit,
   windowInsets: WindowInsets,
   sheetState: FlexibleSheetState,
