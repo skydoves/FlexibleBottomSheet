@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:OptIn(ExperimentalComposeUiApi::class)
+
 package com.skydoves.flexible.bottomsheet.material3
 
 import androidx.compose.foundation.gestures.Orientation
@@ -39,11 +41,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.semantics.collapse
 import androidx.compose.ui.semantics.dismiss
 import androidx.compose.ui.semantics.expand
@@ -61,6 +63,7 @@ import com.skydoves.flexible.core.emptySwipeWithinBottomSheetBoundsNestedScrollC
 import com.skydoves.flexible.core.flexibleBottomSheetAnchorChangeHandler
 import com.skydoves.flexible.core.flexibleBottomSheetSwipeable
 import com.skydoves.flexible.core.rememberFlexibleBottomSheetState
+import com.skydoves.flexible.core.screenHeight
 import com.skydoves.flexible.core.sheetPaddings
 import com.skydoves.flexible.core.toPx
 import kotlinx.coroutines.launch
@@ -173,7 +176,7 @@ public fun FlexibleBottomSheet(
   ) {
     var isDragging by remember { mutableStateOf(false) }
     val isAnimationRunning = sheetState.swipeableState.isAnimationRunning
-    val screenHeightSize = LocalConfiguration.current.screenHeightDp.dp
+    val screenHeightSize = screenHeight()
     val fullyExpandedHeight: Dp = screenHeightSize * sheetState.flexibleSheetSize.fullyExpanded
 
     val flexibleSheetSize = sheetState.flexibleSheetSize

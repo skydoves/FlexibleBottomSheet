@@ -13,20 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:OptIn(ExperimentalComposeUiApi::class)
+
 package com.skydoves.flexible.core
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Dp
 
 @Composable
-@InternalFlexibleApi
-public fun Dp.toPx(): Float = with(LocalDensity.current) { this@toPx.toPx() }
-
-@Composable
-@InternalFlexibleApi
-public fun Int.pxToDp(): Dp = with(LocalDensity.current) { this@pxToDp.toDp() }
-
-@Composable
-@InternalFlexibleApi
-public expect fun screenHeight(): Dp
+public actual fun screenHeight(): Dp = LocalWindowInfo.current.containerSize.height.pxToDp()
