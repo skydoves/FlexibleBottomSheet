@@ -20,11 +20,14 @@ package com.skydoves.flexible.core
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.popup
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 
@@ -47,7 +50,12 @@ public actual fun FlexibleBottomSheetPopup(
       usePlatformInsets = false,
     ),
   ) {
-    Box(modifier = Modifier.windowInsetsPadding(windowInsets)) {
+    Box(
+      modifier = Modifier
+        .semantics { this.popup() }
+        .windowInsetsPadding(windowInsets)
+        .imePadding(),
+    ) {
       content()
     }
   }
