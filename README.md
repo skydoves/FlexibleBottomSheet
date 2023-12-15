@@ -95,7 +95,7 @@ FlexibleBottomSheet(
 }
 ```
 
-You can expand or hide the bottom sheet manually by utilizing the `FlexibleBototmSheetState` like the code below:
+You can expand or hide the bottom sheet manually by utilizing the `FlexibleBottomSheetState` like the code below:
 
 <img src="previews/preview4.gif" width="300px" align="right">
 
