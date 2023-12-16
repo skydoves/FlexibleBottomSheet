@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -47,13 +46,13 @@ public actual fun FlexibleBottomSheetPopup(
     onDismissRequest = onDismissRequest,
     properties = PopupProperties(
       focusable = true,
+      clippingEnabled = false,
       usePlatformInsets = false,
     ),
   ) {
     Box(
       modifier = Modifier
         .semantics { this.popup() }
-        .windowInsetsPadding(windowInsets)
         .imePadding(),
     ) {
       content()
