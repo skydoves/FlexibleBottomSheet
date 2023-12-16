@@ -45,9 +45,10 @@ public actual fun FlexibleBottomSheetPopup(
     alignment = Alignment.BottomCenter,
     onDismissRequest = onDismissRequest,
     properties = PopupProperties(
-      focusable = true,
+      focusable = false,
       clippingEnabled = false,
       usePlatformInsets = false,
+      dismissOnClickOutside = false,
     ),
   ) {
     Box(
