@@ -15,8 +15,6 @@
  */
 package com.skydoves.flexiblebottomsheetdemo
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -35,16 +33,19 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.skydoves.flexible.bottomsheet.material3.FlexibleBottomSheet
 import com.skydoves.flexible.core.FlexibleSheetSize
-import com.skydoves.flexible.core.FlexibleSheetState
+import com.skydoves.flexible.core.FlexibleSheetValue
 import com.skydoves.flexible.core.rememberFlexibleBottomSheetState
 import com.skydoves.flexiblebottomsheetdemo.mocks.MockUtils
 import com.skydoves.landscapist.glide.GlideImage
@@ -53,6 +54,8 @@ import com.skydoves.landscapist.glide.GlideImage
 fun FlexibleBottomSheetSample2(
   onDismissRequest: () -> Unit,
 ) {
+  var targetValue by remember { mutableStateOf(FlexibleSheetValue.IntermediatelyExpanded) }
+
   val sheetState = rememberFlexibleBottomSheetState(
     flexibleSheetSize = FlexibleSheetSize(
       fullyExpanded = 0.9f,
@@ -68,14 +71,15 @@ fun FlexibleBottomSheetSample2(
     onDismissRequest = onDismissRequest,
     sheetState = sheetState,
     containerColor = Color.Black,
+    onTargetChanges = { targetValue = it },
   ) {
-    BottomSheetContent(sheetState = sheetState)
+    BottomSheetContent(targetValue = targetValue)
   }
 }
 
 @Composable
 private fun BottomSheetContent(
-  sheetState: FlexibleSheetState,
+  targetValue: FlexibleSheetValue,
 ) {
   Row(
     modifier = Modifier
@@ -99,9 +103,15 @@ private fun BottomSheetContent(
     ) {
       Text(
         modifier = Modifier.padding(bottom = 1.dp),
-        text = "New York",
+        text = "lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor",
         fontSize = 16.sp,
         fontWeight = FontWeight.Bold,
+        maxLines = if (targetValue == FlexibleSheetValue.SlightlyExpanded) {
+          1
+        } else {
+          3
+        },
+        overflow = TextOverflow.Ellipsis,
         color = Color.White,
       )
 
@@ -134,8 +144,7 @@ private fun BottomSheetContent(
           .fillMaxWidth()
           .height(230.dp)
           .padding(2.dp)
-          .clip(RoundedCornerShape(8.dp))
-          .border(BorderStroke(2.dp, Color.Green)),
+          .clip(RoundedCornerShape(8.dp)),
         imageModel = { it.poster },
       )
     }
