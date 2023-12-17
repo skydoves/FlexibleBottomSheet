@@ -42,7 +42,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.semantics.collapse
 import androidx.compose.ui.semantics.dismiss
 import androidx.compose.ui.semantics.expand
@@ -60,6 +59,7 @@ import com.skydoves.flexible.core.emptySwipeWithinBottomSheetBoundsNestedScrollC
 import com.skydoves.flexible.core.flexibleBottomSheetAnchorChangeHandler
 import com.skydoves.flexible.core.flexibleBottomSheetSwipeable
 import com.skydoves.flexible.core.rememberFlexibleBottomSheetState
+import com.skydoves.flexible.core.screenHeight
 import com.skydoves.flexible.core.sheetPaddings
 import com.skydoves.flexible.core.toPx
 import kotlinx.coroutines.launch
@@ -170,7 +170,7 @@ public fun FlexibleBottomSheet(
   ) {
     var isDragging by remember { mutableStateOf(false) }
     val isAnimationRunning = sheetState.swipeableState.isAnimationRunning
-    val screenHeightSize = LocalConfiguration.current.screenHeightDp.dp
+    val screenHeightSize = screenHeight()
     val fullyExpandedHeight: Dp = screenHeightSize * sheetState.flexibleSheetSize.fullyExpanded
 
     val flexibleSheetSize = sheetState.flexibleSheetSize
