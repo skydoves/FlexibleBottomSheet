@@ -29,10 +29,10 @@ Add the dependency below to your **module**'s `build.gradle` file:
 ```gradle
 dependencies {
     // compose material
-    implementation("com.github.skydoves:flexible-bottomsheet-material:0.1.0")
+    implementation("com.github.skydoves:flexible-bottomsheet-material:0.1.1")
 
     // compose material3
-    implementation("com.github.skydoves:flexible-bottomsheet-material3:0.1.0")
+    implementation("com.github.skydoves:flexible-bottomsheet-material3:0.1.1")
 }
 ```
 
