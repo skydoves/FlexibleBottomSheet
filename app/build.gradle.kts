@@ -80,5 +80,7 @@ dependencies {
   implementation(libs.landscapist.placeholder)
   implementation(libs.landscapist.animation)
 
+  implementation(libs.accompanist.systemuicontroller)
+
   implementation(libs.orbital)
 }

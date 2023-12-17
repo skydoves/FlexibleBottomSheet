@@ -18,6 +18,7 @@ uiAutomator = "2.3.0-alpha05"
 spotless = "6.21.0"
 orbital = "0.3.3"
 androidxMacroBenchmark = "1.2.2"
+accompanist = "0.32.0"
 jetbrains-compose = "1.5.11"
 
 [plugins]
@@ -50,6 +51,8 @@ androidx-compose-constraintlayout = { group = "androidx.constraintlayout", name 
 landscapist-glide = { group = "com.github.skydoves", name = "landscapist-glide", version.ref = "landscapist" }
 landscapist-placeholder = { group = "com.github.skydoves", name = "landscapist-placeholder", version.ref = "landscapist" }
 landscapist-animation = { group = "com.github.skydoves", name = "landscapist-animation", version.ref = "landscapist" }
+
+accompanist-systemuicontroller = { group = "com.google.accompanist", name = "accompanist-systemuicontroller", version.ref = "accompanist" }
 
 orbital = { group = "com.github.skydoves", name = "orbital", version.ref = "orbital" }
 
