@@ -16,9 +16,9 @@
 package com.skydoves.flexible.core
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 
 @Composable
-@InternalFlexibleApi
-public fun Dp.toPx(): Float = with(LocalDensity.current) { this@toPx.toPx() }
+public actual fun screenHeight(): Dp = LocalConfiguration.current.screenHeightDp.dp

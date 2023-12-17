@@ -30,6 +30,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.unit.Velocity
 import kotlinx.coroutines.CancellationException
+import kotlin.jvm.JvmName
 
 /**
  * State of a sheet composable, such as [FlexibleBottomSheet]

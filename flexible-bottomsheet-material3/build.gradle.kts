@@ -27,6 +27,42 @@ mavenPublishing {
 
 kotlin {
   androidTarget { publishLibraryVariants("release") }
+  jvm("desktop")
+  iosX64()
+  iosArm64()
+  iosSimulatorArm64()
+  macosX64()
+  macosArm64()
+  js(IR) {
+    browser()
+    nodejs()
+  }
+  @Suppress("OPT_IN_USAGE")
+  applyHierarchyTemplate {
+    common {
+      group("jvm") {
+        withAndroidTarget()
+        withJvm()
+      }
+      group("skia") {
+        withJvm()
+        group("darwin") {
+          group("apple") {
+            group("ios") {
+              withIosX64()
+              withIosArm64()
+              withIosSimulatorArm64()
+            }
+            group("macos") {
+              withMacosX64()
+              withMacosArm64()
+            }
+          }
+          withJs()
+        }
+      }
+    }
+  }
 
   sourceSets {
     all {
@@ -48,6 +84,15 @@ kotlin {
       dependencies {
         implementation(libs.androidx.lifecycle.viewmodel)
         implementation(libs.androidx.activity.compose)
+      }
+    }
+  }
+
+  targets.configureEach {
+    compilations.configureEach {
+      compilerOptions.configure {
+        // https://youtrack.jetbrains.com/issue/KT-61573
+        freeCompilerArgs.add("-Xexpect-actual-classes")
       }
     }
   }
