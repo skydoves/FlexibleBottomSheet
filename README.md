@@ -10,7 +10,7 @@
 </p><br>
 
 <p align="center">
-🐬 FlexibleBottomSheet is an advanced Jetpack Compose bottom sheet that allows you to implement segmented sizing and non-modal type, similar to Google Maps. It also offers additional conveniences, including specifying sheet sizes, monitoring sheet states, and more customization.
+🐬 FlexibleBottomSheet is an advanced Jetpack Compose Multiplatform bottom sheet that allows you to implement segmented sizing and non-modal type, similar to Google Maps. It also offers additional conveniences, including specifying sheet sizes, monitoring sheet states, and more customization.
 </p><br>
 
 <p align="center">
@@ -33,6 +33,22 @@ dependencies {
 
     // compose material3
     implementation("com.github.skydoves:flexible-bottomsheet-material3:0.1.1")
+}
+```
+
+For Kotlin Multiplatform, add the dependency below to your **module**'s `build.gradle.kts` file:
+
+```gradle
+sourceSets {
+    val commonMain by getting {
+        dependencies {
+            // compose material
+            implementation("com.github.skydoves:flexible-bottomsheet-material:$version")
+            
+            // compose material3
+            implementation("com.github.skydoves:flexible-bottomsheet-material3:$version")
+        }
+    }
 }
 ```
 
