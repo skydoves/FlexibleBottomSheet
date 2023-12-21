@@ -41,6 +41,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.semantics.collapse
 import androidx.compose.ui.semantics.dismiss
@@ -198,7 +199,18 @@ public fun FlexibleBottomSheet(
     }
 
     BoxWithConstraints(
-      modifier = sheetModifier.align(Alignment.BottomCenter),
+      modifier = sheetModifier
+        .align(Alignment.BottomCenter)
+        .graphicsLayer {
+          alpha =
+            if (sheetState.targetValue ==
+              FlexibleSheetValue.Hidden && !isDragging && !isAnimationRunning
+            ) {
+              0f
+            } else {
+              1f
+            }
+        },
     ) {
       val constraintHeight = constraints.maxHeight.toFloat()
       if (sheetState.isModal) {
