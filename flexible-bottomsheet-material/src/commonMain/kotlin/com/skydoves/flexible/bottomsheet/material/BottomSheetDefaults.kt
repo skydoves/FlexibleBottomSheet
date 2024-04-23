@@ -86,12 +86,13 @@ public object BottomSheetDefaults {
     width: Dp = SheetBottomTokens.DockedDragHandleWidth,
     height: Dp = SheetBottomTokens.DockedDragHandleHeight,
     shape: Shape = RoundedCornerShape(28.0.dp),
+    verticalPadding: Dp = DragHandleVerticalPadding,
     color: Color = MaterialTheme.colors.secondaryVariant
       .copy(SheetBottomTokens.DockedDragHandleOpacity),
   ) {
     Surface(
       modifier = modifier
-        .padding(vertical = DragHandleVerticalPadding)
+        .padding(vertical = verticalPadding)
         .semantics { contentDescription = "DragHandle" },
       color = color,
       shape = shape,
