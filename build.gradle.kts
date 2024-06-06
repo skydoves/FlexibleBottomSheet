@@ -28,7 +28,6 @@ plugins {
 }
 
 apiValidation {
-  ignoredProjects.addAll(listOf("app", "baselineprofile-app"))
   nonPublicMarkers.add("com.skydoves.flexible.core.InternalFlexibleApi")
 }
 
