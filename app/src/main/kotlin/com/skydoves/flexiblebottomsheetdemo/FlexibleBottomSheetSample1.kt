@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,18 +45,6 @@ fun FlexibleBottomSheetSample1(
   val primaryColor = MaterialTheme.colors.primary
   val scrimColor = Color.Black.copy(alpha = 0.65f)
 
-  LaunchedEffect(currentSheetTarget) {
-    if (currentSheetTarget == FlexibleSheetValue.Hidden) {
-      systemUiController.setStatusBarColor(
-        color = primaryColor,
-      )
-    } else {
-      systemUiController.setStatusBarColor(
-        color = scrimColor,
-      )
-    }
-  }
-
   FlexibleBottomSheet(
     onDismissRequest = onDismissRequest,
     sheetState = rememberFlexibleBottomSheetState(
@@ -67,6 +54,15 @@ fun FlexibleBottomSheetSample1(
     ),
     onTargetChanges = { sheetValue ->
       currentSheetTarget = sheetValue
+      if (sheetValue == FlexibleSheetValue.Hidden) {
+        systemUiController.setStatusBarColor(
+          color = primaryColor,
+        )
+      } else {
+        systemUiController.setStatusBarColor(
+          color = scrimColor,
+        )
+      }
     },
     containerColor = Color.Black,
     scrimColor = scrimColor,
