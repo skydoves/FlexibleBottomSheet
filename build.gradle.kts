@@ -17,17 +17,17 @@ plugins {
   alias(libs.plugins.android.application) apply false
   alias(libs.plugins.android.library) apply false
   alias(libs.plugins.kotlin.multiplatform) apply false
+  alias(libs.plugins.compose.compiler) apply false
+  alias(libs.plugins.kotlin.android) apply false
   alias(libs.plugins.jetbrains.compose) apply false
   alias(libs.plugins.baseline.profile) apply false
   alias(libs.plugins.kotlin.binary.compatibility)
   alias(libs.plugins.nexus.plugin)
   alias(libs.plugins.spotless)
   alias(libs.plugins.dokka)
-  alias(libs.plugins.kotlin.android) apply false
 }
 
 apiValidation {
-  ignoredProjects.addAll(listOf("app", "baselineprofile-app"))
   nonPublicMarkers.add("com.skydoves.flexible.core.InternalFlexibleApi")
 }
 
