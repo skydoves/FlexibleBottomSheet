@@ -92,7 +92,9 @@ public actual fun FlexibleBottomSheetPopup(
     }
   }
 
-  BackHandler { onDismissRequest() }
+  if (!sheetState.skipHiddenState) {
+    BackHandler { onDismissRequest() }
+  }
 
   DisposableEffect(flexibleBottomSheetWindow) {
     flexibleBottomSheetWindow.show()

@@ -54,6 +54,7 @@ import kotlin.jvm.JvmName
  */
 @Stable
 public class FlexibleSheetState(
+  public val skipHiddenState: Boolean = false,
   public val skipIntermediatelyExpanded: Boolean,
   public val skipSlightlyExpanded: Boolean,
   public val flexibleSheetSize: FlexibleSheetSize,
@@ -63,18 +64,12 @@ public class FlexibleSheetState(
   public val animateSpec: AnimationSpec<Float>,
   initialValue: FlexibleSheetValue = FlexibleSheetValue.Hidden,
   confirmValueChange: (FlexibleSheetValue) -> Boolean = { true },
-  public val skipHiddenState: Boolean = false,
 ) {
   init {
     if (skipIntermediatelyExpanded) {
       require(initialValue != FlexibleSheetValue.IntermediatelyExpanded) {
         "The initial value must not be set to IntermediatelyExpanded if " +
           "skipIntermediatelyExpanded is set to true."
-      }
-    }
-    if (skipHiddenState) {
-      require(initialValue != FlexibleSheetValue.Hidden) {
-        "The initial value must not be set to Hidden if skipHiddenState is set to true."
       }
     }
   }
@@ -301,6 +296,7 @@ public class FlexibleSheetState(
      * The default [Saver] implementation for [FlexibleSheetState].
      */
     fun Saver(
+      skipHiddenState: Boolean,
       skipIntermediatelyExpanded: Boolean,
       skipSlightlyExpanded: Boolean,
       flexibleSheetSize: FlexibleSheetSize,
@@ -313,6 +309,7 @@ public class FlexibleSheetState(
       save = { it.currentValue },
       restore = { savedValue ->
         FlexibleSheetState(
+          skipHiddenState = skipHiddenState,
           skipIntermediatelyExpanded = skipIntermediatelyExpanded,
           skipSlightlyExpanded = skipSlightlyExpanded,
           isModal = isModal,
@@ -455,6 +452,7 @@ public fun consumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
  */
 @Composable
 public fun rememberFlexibleBottomSheetState(
+  skipHiddenState: Boolean = false,
   skipIntermediatelyExpanded: Boolean = false,
   skipSlightlyExpanded: Boolean = true,
   isModal: Boolean = false,
@@ -462,8 +460,15 @@ public fun rememberFlexibleBottomSheetState(
   allowNestedScroll: Boolean = true,
   animateSpec: AnimationSpec<Float> = SwipeableV2Defaults.AnimationSpec,
   flexibleSheetSize: FlexibleSheetSize = FlexibleSheetSize(),
-  confirmValueChange: (FlexibleSheetValue) -> Boolean = { true },
+  confirmValueChange: (FlexibleSheetValue) -> Boolean = {
+    if (skipHiddenState) {
+      it != FlexibleSheetValue.Hidden
+    } else {
+      true
+    }
+  },
 ): FlexibleSheetState = rememberFlexibleSheetState(
+  skipHiddenState = skipHiddenState,
   skipIntermediatelyExpanded = skipIntermediatelyExpanded,
   skipSlightlyExpanded = skipSlightlyExpanded,
   isModal = isModal,
@@ -488,10 +493,12 @@ private fun rememberFlexibleSheetState(
   skipHiddenState: Boolean = false,
 ): FlexibleSheetState {
   return rememberSaveable(
+    skipHiddenState,
     skipIntermediatelyExpanded,
     skipSlightlyExpanded,
     confirmValueChange,
     saver = FlexibleSheetState.Saver(
+      skipHiddenState = skipHiddenState,
       skipIntermediatelyExpanded = skipIntermediatelyExpanded,
       skipSlightlyExpanded = skipSlightlyExpanded,
       isModal = isModal,
@@ -503,6 +510,7 @@ private fun rememberFlexibleSheetState(
     ),
   ) {
     FlexibleSheetState(
+      skipHiddenState = skipHiddenState,
       skipIntermediatelyExpanded = skipIntermediatelyExpanded,
       skipSlightlyExpanded = skipSlightlyExpanded,
       isModal = isModal,
@@ -512,7 +520,6 @@ private fun rememberFlexibleSheetState(
       flexibleSheetSize = flexibleSheetSize,
       containSystemBars = containSystemBars,
       allowNestedScroll = allowNestedScroll,
-      skipHiddenState = skipHiddenState,
     )
   }
 }
