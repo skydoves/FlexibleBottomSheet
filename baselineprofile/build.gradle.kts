@@ -4,7 +4,6 @@ import com.skydoves.flexible.Configuration
 plugins {
   id(libs.plugins.android.test.get().pluginId)
   id(libs.plugins.kotlin.android.get().pluginId)
-  id(libs.plugins.compose.compiler.get().pluginId)
   id(libs.plugins.baseline.profile.get().pluginId)
 }
 
