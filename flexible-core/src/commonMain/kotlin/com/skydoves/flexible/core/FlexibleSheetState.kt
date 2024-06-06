@@ -37,6 +37,7 @@ import kotlin.jvm.JvmName
  *
  * Contains states relating to it's swipe position as well as animations between state values.
  *
+ * @param skipHiddenState Whether the hidden state should be skipped. If true, the sheet will always be displayed.
  * @param skipIntermediatelyExpanded Whether the intermediately expanded state, if the sheet is large
  * enough, should be skipped. If true, the sheet will always expand to the [FlexibleSheetValue.FullyExpanded] state and move
  * @param skipSlightlyExpanded Whether the slightly expanded state, if the sheet is tall enough,
@@ -46,7 +47,6 @@ import kotlin.jvm.JvmName
  * @param flexibleSheetSize FlexibleSheetSize constraints the content size of [FlexibleBottomSheet] based on its states.
  * @param initialValue The initial value of the state.
  * @param confirmValueChange Optional callback invoked to confirm or veto a pending state change.
- * @param skipHiddenState Whether the hidden state should be skipped. If true, the sheet will always
  * @param isModal Determines if the bottom sheet should be modal. If set to true, the sheet will include a scrim overlaying the background and
  * will be dismissed upon touching outside of the sheet. If set to false, the bottom sheet allows interaction with the screen, permitting actions outside of the sheet.
  * expand to the [FlexibleSheetValue.FullyExpanded] state and move to the [FlexibleSheetValue.IntermediatelyExpanded] if available, either
@@ -54,7 +54,7 @@ import kotlin.jvm.JvmName
  */
 @Stable
 public class FlexibleSheetState(
-  public val skipHiddenState: Boolean = false,
+  public val skipHiddenState: Boolean,
   public val skipIntermediatelyExpanded: Boolean,
   public val skipSlightlyExpanded: Boolean,
   public val flexibleSheetSize: FlexibleSheetSize,
@@ -438,6 +438,7 @@ public fun consumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
 /**
  * Create and [remember] a [FlexibleSheetState] for [FlexibleBottomSheet].
  *
+ * @param skipHiddenState Whether the hidden state should be skipped. If true, the sheet will always be displayed.
  * @param skipIntermediatelyExpanded Whether the intermediately expanded state, if the sheet is tall enough,
  * should be skipped. If true, the sheet will always expand to the [FlexibleSheetValue.FullyExpanded] state and move to the
  * @param skipSlightlyExpanded Whether the slightly expanded state, if the sheet is tall enough,
@@ -481,6 +482,7 @@ public fun rememberFlexibleBottomSheetState(
 
 @Composable
 private fun rememberFlexibleSheetState(
+  skipHiddenState: Boolean = false,
   skipIntermediatelyExpanded: Boolean = false,
   skipSlightlyExpanded: Boolean = false,
   isModal: Boolean = true,
@@ -490,7 +492,6 @@ private fun rememberFlexibleSheetState(
   flexibleSheetSize: FlexibleSheetSize = FlexibleSheetSize(),
   containSystemBars: Boolean = false,
   allowNestedScroll: Boolean = true,
-  skipHiddenState: Boolean = false,
 ): FlexibleSheetState {
   return rememberSaveable(
     skipHiddenState,

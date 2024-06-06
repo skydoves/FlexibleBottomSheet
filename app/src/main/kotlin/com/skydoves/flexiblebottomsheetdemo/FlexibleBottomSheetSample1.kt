@@ -17,8 +17,8 @@ package com.skydoves.flexiblebottomsheetdemo
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,7 +42,7 @@ fun FlexibleBottomSheetSample1(
   var currentSheetTarget by remember { mutableStateOf(FlexibleSheetValue.IntermediatelyExpanded) }
   val systemUiController = rememberSystemUiController()
 
-  val primaryColor = MaterialTheme.colors.primary
+  val primaryColor = MaterialTheme.colorScheme.primary
   val scrimColor = Color.Black.copy(alpha = 0.65f)
 
   FlexibleBottomSheet(

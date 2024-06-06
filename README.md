@@ -152,7 +152,7 @@ The flexible bottom sheet offers four primary sheet statuses known as `FlexibleV
 - **Fully Expanded**: The sheet is visible at its fully-expanded height. This is mandatory and cannot be skipped.
 - **Intermediately Expanded**: The sheet is visible at an intermediate expanded height. This can be skipped by setting `skipIntermediatelyExpanded` to `true`.
 - **Slightly Expanded**: The sheet is visible at a slightly expanded height. This is skipped by default but can be enabled by setting `skipSlightlyExpanded` to `false`.
-- **Hidden**: The sheet is completely not visible on the screen.
+- **Hidden**: The sheet is completely not visible on the screen. If you never want to dismiss and keep displaying the bottom sheet, you can give `skipHiddenState` to `true`.
 
 You have the option to skip the **Intermediately Expanded** and **Slightly Expanded** states, as demonstrated below:
 
