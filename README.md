@@ -10,7 +10,7 @@
 </p><br>
 
 <p align="center">
-🐬 FlexibleBottomSheet is an advanced Jetpack Compose Multiplatform bottom sheet that allows you to implement segmented sizing and non-modal type, similar to Google Maps. It also offers additional conveniences, including specifying sheet sizes, monitoring sheet states, and more customization.
+🐬 FlexibleBottomSheet is an advanced Compose Multiplatform bottom sheet for segmented sizing, non-modal type, and allows interaction behind the bottom sheet similar to Google Maps. It also offers additional conveniences, including specifying sheet sizes, monitoring sheet states, and more customization.
 </p><br>
 
 <p align="center">
