@@ -364,6 +364,7 @@ public fun emptySwipeWithinBottomSheetBoundsNestedScrollConnection(): NestedScro
 
 @InternalFlexibleApi
 public fun consumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
+  screenHeight: Float,
   sheetState: FlexibleSheetState,
   orientation: Orientation,
   onFling: (velocity: Float) -> Unit,
@@ -378,7 +379,36 @@ public fun consumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
       sheetState.currentValue == FlexibleSheetValue.FullyExpanded && !sheetState.isModal
     ) {
       onDragging.invoke(true)
-      Offset.Zero
+
+      val currentOffset = sheetState.swipeableState.dispatchRawDelta(delta)
+      val maxOffset = sheetState.swipeableState.calculateDispatchedOffset(
+        screenHeight * if (!sheetState.skipIntermediatelyExpanded) {
+          sheetState.flexibleSheetSize.intermediatelyExpanded
+        } else if (!sheetState.skipSlightlyExpanded) {
+          sheetState.flexibleSheetSize.slightlyExpanded
+        } else {
+          0f
+        },
+        delta,
+      )
+      val calculatedOffset = if (currentOffset > maxOffset) maxOffset else currentOffset
+      calculatedOffset.toOffset()
+    } else if (delta > 0 && source == NestedScrollSource.Fling &&
+      sheetState.currentValue == FlexibleSheetValue.IntermediatelyExpanded && !sheetState.isModal
+    ) {
+      onDragging.invoke(true)
+
+      val currentOffset = sheetState.swipeableState.dispatchRawDelta(delta)
+      val maxOffset = sheetState.swipeableState.calculateDispatchedOffset(
+        screenHeight * if (!sheetState.skipSlightlyExpanded) {
+          sheetState.flexibleSheetSize.slightlyExpanded
+        } else {
+          0f
+        },
+        delta,
+      )
+      val calculatedOffset = if (currentOffset > maxOffset) maxOffset else currentOffset
+      calculatedOffset.toOffset()
     } else if (delta > 0 &&
       sheetState.currentValue != FlexibleSheetValue.FullyExpanded && !sheetState.isModal
     ) {

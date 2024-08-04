@@ -172,6 +172,7 @@ public fun FlexibleBottomSheet(
     var isDragging by remember { mutableStateOf(false) }
     val isAnimationRunning = sheetState.swipeableState.isAnimationRunning
     val screenHeightSize = screenHeight()
+    val screenHeightPxSize = screenHeightSize.toPx()
     val fullyExpandedHeight: Dp = screenHeightSize * sheetState.flexibleSheetSize.fullyExpanded
 
     val flexibleSheetSize = sheetState.flexibleSheetSize
@@ -252,6 +253,7 @@ public fun FlexibleBottomSheet(
                 consumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
                   sheetState = sheetState,
                   orientation = Orientation.Vertical,
+                  screenHeight = screenHeightSize.value,
                   onFling = settleToDismiss,
                 )
               } else {
