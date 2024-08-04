@@ -78,6 +78,10 @@ public final class com/skydoves/flexible/core/FlexibleSwipeableKt {
 public abstract interface annotation class com/skydoves/flexible/core/InternalFlexibleApi : java/lang/annotation/Annotation {
 }
 
+public final class com/skydoves/flexible/core/LoggerKt {
+	public static final fun log (Ljava/lang/String;)V
+}
+
 public final class com/skydoves/flexible/core/ScreenHeightKt {
 	public static final fun screenHeight (Landroidx/compose/runtime/Composer;I)F
 }
