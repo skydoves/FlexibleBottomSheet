@@ -100,6 +100,7 @@ public final class com/skydoves/flexible/core/SwipeableV2State {
 	public synthetic fun <init> (Ljava/lang/Object;Landroidx/compose/animation/core/AnimationSpec;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;FLkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun animateTo (Ljava/lang/Object;FLandroidx/compose/animation/core/AnimationSpec;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun animateTo$default (Lcom/skydoves/flexible/core/SwipeableV2State;Ljava/lang/Object;FLandroidx/compose/animation/core/AnimationSpec;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public final fun calculateDispatchedOffset (FF)F
 	public final fun dispatchRawDelta (F)F
 	public final fun getAnchors ()Ljava/util/Map;
 	public final fun getAnimationSpec ()Landroidx/compose/animation/core/AnimationSpec;

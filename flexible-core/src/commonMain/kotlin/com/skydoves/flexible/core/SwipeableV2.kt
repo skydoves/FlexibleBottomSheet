@@ -440,6 +440,14 @@ public class SwipeableV2State<T>(
     return deltaToConsume
   }
 
+  public fun calculateDispatchedOffset(offset: Float, delta: Float): Float {
+    val currentDragPosition = offset
+    val potentiallyConsumed = currentDragPosition + delta
+    val clamped = potentiallyConsumed.coerceIn(minOffset, maxOffset)
+    val deltaToConsume = clamped - currentDragPosition
+    return deltaToConsume
+  }
+
   private fun computeTarget(
     offset: Float,
     currentValue: T,
