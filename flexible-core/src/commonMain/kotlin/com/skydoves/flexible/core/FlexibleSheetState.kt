@@ -372,7 +372,7 @@ public fun consumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
   override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
     val delta = available.toFloat()
     return if (delta < 0 && source == NestedScrollSource.Drag) {
-      onDragging.invoke(true)qw
+      onDragging.invoke(true)
       sheetState.swipeableState.dispatchRawDelta(delta).toOffset()
     } else if (delta > 0 && source == NestedScrollSource.Fling &&
       sheetState.currentValue == FlexibleSheetValue.FullyExpanded && !sheetState.isModal
