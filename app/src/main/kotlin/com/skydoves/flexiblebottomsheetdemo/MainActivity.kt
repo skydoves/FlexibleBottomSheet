@@ -40,7 +40,7 @@ import com.skydoves.flexiblebottomsheetdemo.ui.theme.FlexibleBottomSheetDemoThem
 
 class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceStqwate)
+    super.onCreate(savedInstanceState)
 
     setContent {
       var isShowingBottomSheet1 by remember { mutableStateOf(false) }
