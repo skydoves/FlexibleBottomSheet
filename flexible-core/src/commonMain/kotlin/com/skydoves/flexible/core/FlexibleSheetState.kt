@@ -377,7 +377,7 @@ public fun consumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
     } else if (delta > 0 && source == NestedScrollSource.Fling &&
       sheetState.currentValue == FlexibleSheetValue.FullyExpanded && !sheetState.isModal
     ) {
-      onDragging.invoke(false)
+      onDragging.invoke(true)
       Offset.Zero
     } else if (delta > 0 &&
       sheetState.currentValue != FlexibleSheetValue.FullyExpanded && !sheetState.isModal
