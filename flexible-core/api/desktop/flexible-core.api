@@ -2,9 +2,6 @@ public abstract interface class com/skydoves/flexible/core/AnchorChangeHandler {
 	public abstract fun onAnchorsChanged (Ljava/lang/Object;Ljava/util/Map;Ljava/util/Map;)V
 }
 
-public final class com/skydoves/flexible/core/FlexibleBottomSheetPopupKt {
-}
-
 public final class com/skydoves/flexible/core/FlexibleSheetSize {
 	public static final field $stable I
 	public fun <init> ()V
@@ -72,9 +69,6 @@ public final class com/skydoves/flexible/core/FlexibleSheetValue : java/lang/Enu
 	public static fun values ()[Lcom/skydoves/flexible/core/FlexibleSheetValue;
 }
 
-public final class com/skydoves/flexible/core/FlexibleSwipeableKt {
-}
-
 public abstract interface annotation class com/skydoves/flexible/core/InternalFlexibleApi : java/lang/annotation/Annotation {
 }
 
@@ -92,9 +86,6 @@ public final class com/skydoves/flexible/core/ScrimKt {
 
 public final class com/skydoves/flexible/core/SheetPaddingsKt {
 	public static final fun sheetPaddings (Landroidx/compose/ui/Modifier;Lcom/skydoves/flexible/core/FlexibleSheetState;)Landroidx/compose/ui/Modifier;
-}
-
-public final class com/skydoves/flexible/core/SizeKt {
 }
 
 public final class com/skydoves/flexible/core/SwipeableV2Kt {
