@@ -259,9 +259,7 @@ public fun FlexibleBottomSheet(
                   screenHeight = screenHeightSize.value,
                   onFling = settleToDismiss,
                   onDragging = {
-                    if (!sheetState.isModal) {
-                      isDragging = it
-                    }
+                    isDragging = it
                   },
                 )
               } else {
