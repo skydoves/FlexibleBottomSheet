@@ -255,6 +255,9 @@ public fun FlexibleBottomSheet(
                   orientation = Orientation.Vertical,
                   screenHeight = screenHeightSize.value,
                   onFling = settleToDismiss,
+                  onDragging = {
+                    isDragging = it
+                  },
                 )
               } else {
                 emptySwipeWithinBottomSheetBoundsNestedScrollConnection()
