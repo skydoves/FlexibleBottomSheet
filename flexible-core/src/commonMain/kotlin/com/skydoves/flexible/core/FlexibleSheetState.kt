@@ -194,9 +194,14 @@ public class FlexibleSheetState(
   /**
    * Expand the bottom sheet with animation and suspend until it is [FlexibleSheetValue.IntermediatelyExpanded] if defined
    * else [FlexibleSheetValue.FullyExpanded].
+   * If the current state is not FlexibleSheetValue.Hidden,
+   * calling this function without set the [target] parameter will retain the current state.
    * @throws [CancellationException] if the animation is interrupted
    */
   public suspend fun show(target: FlexibleSheetValue? = null) {
+    if (target == null && currentValue != FlexibleSheetValue.Hidden) {
+      return
+    }
     if (!isModal) {
       val targetValue1 = when {
         hasIntermediatelyExpandedState -> FlexibleSheetValue.IntermediatelyExpanded
