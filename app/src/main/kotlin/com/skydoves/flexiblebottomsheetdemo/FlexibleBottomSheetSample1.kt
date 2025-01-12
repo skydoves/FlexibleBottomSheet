@@ -40,9 +40,7 @@ fun FlexibleBottomSheetSample1(
   onDismissRequest: () -> Unit,
 ) {
   var currentSheetTarget by remember { mutableStateOf(FlexibleSheetValue.IntermediatelyExpanded) }
-  val systemUiController = rememberSystemUiController()
 
-  val primaryColor = MaterialTheme.colorScheme.primary
   val scrimColor = Color.Black.copy(alpha = 0.65f)
 
   FlexibleBottomSheet(
@@ -54,15 +52,6 @@ fun FlexibleBottomSheetSample1(
     ),
     onTargetChanges = { sheetValue ->
       currentSheetTarget = sheetValue
-      if (sheetValue == FlexibleSheetValue.Hidden) {
-        systemUiController.setStatusBarColor(
-          color = primaryColor,
-        )
-      } else {
-        systemUiController.setStatusBarColor(
-          color = scrimColor,
-        )
-      }
     },
     containerColor = Color.Black,
     scrimColor = scrimColor,
