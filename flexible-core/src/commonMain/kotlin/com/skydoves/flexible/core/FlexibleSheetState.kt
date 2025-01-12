@@ -31,6 +31,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.unit.Velocity
 import kotlinx.coroutines.CancellationException
 import kotlin.jvm.JvmName
+import kotlin.math.min
 
 /**
  * State of a sheet composable, such as [FlexibleBottomSheet]
@@ -375,45 +376,27 @@ public fun consumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
     return if (delta < 0 && source == NestedScrollSource.Drag) {
       onDragging.invoke(true)
       sheetState.swipeableState.dispatchRawDelta(delta).toOffset()
-    } else if (delta > 0 && source == NestedScrollSource.Fling &&
-      sheetState.currentValue == FlexibleSheetValue.FullyExpanded && !sheetState.isModal
-    ) {
+    } else if (delta > 0 && source == NestedScrollSource.Fling && !sheetState.isModal) {
       onDragging.invoke(true)
 
       val currentOffset = sheetState.swipeableState.dispatchRawDelta(delta)
-      val maxOffset = sheetState.swipeableState.calculateDispatchedOffset(
-        screenHeight * if (!sheetState.skipIntermediatelyExpanded) {
-          sheetState.flexibleSheetSize.intermediatelyExpanded
-        } else if (!sheetState.skipSlightlyExpanded) {
-          sheetState.flexibleSheetSize.slightlyExpanded
-        } else {
-          0f
-        },
-        delta,
-      )
-      val calculatedOffset = if (currentOffset > maxOffset) maxOffset else currentOffset
-      calculatedOffset.toOffset()
-    } else if (delta > 0 && source == NestedScrollSource.Fling &&
-      sheetState.currentValue == FlexibleSheetValue.IntermediatelyExpanded && !sheetState.isModal
-    ) {
-      onDragging.invoke(true)
 
-      val currentOffset = sheetState.swipeableState.dispatchRawDelta(delta)
-      val maxOffset = sheetState.swipeableState.calculateDispatchedOffset(
-        screenHeight * if (!sheetState.skipSlightlyExpanded) {
-          sheetState.flexibleSheetSize.slightlyExpanded
-        } else {
-          0f
-        },
-        delta,
-      )
-      val calculatedOffset = if (currentOffset > maxOffset) maxOffset else currentOffset
+      val offset = screenHeight * when (sheetState.currentValue) {
+        FlexibleSheetValue.FullyExpanded -> when {
+          !sheetState.skipIntermediatelyExpanded -> sheetState.flexibleSheetSize.intermediatelyExpanded
+          !sheetState.skipSlightlyExpanded -> sheetState.flexibleSheetSize.slightlyExpanded
+          else -> 0f
+        }
+        FlexibleSheetValue.IntermediatelyExpanded -> when {
+          !sheetState.skipSlightlyExpanded -> sheetState.flexibleSheetSize.slightlyExpanded
+          else -> 0f
+        }
+        else -> 0f
+      }
+      val maxOffset = sheetState.swipeableState.calculateDispatchedOffset(offset, delta)
+
+      val calculatedOffset = min(maxOffset, currentOffset)
       calculatedOffset.toOffset()
-    } else if (delta > 0 &&
-      sheetState.currentValue != FlexibleSheetValue.FullyExpanded && !sheetState.isModal
-    ) {
-      onDragging.invoke(true)
-      sheetState.swipeableState.dispatchRawDelta(delta).toOffset()
     } else {
       onDragging.invoke(false)
       Offset.Zero
