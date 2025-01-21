@@ -31,6 +31,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.unit.Velocity
 import kotlinx.coroutines.CancellationException
 import kotlin.jvm.JvmName
+import kotlin.math.min
 
 /**
  * State of a sheet composable, such as [FlexibleBottomSheet]
@@ -51,6 +52,7 @@ import kotlin.jvm.JvmName
  * will be dismissed upon touching outside of the sheet. If set to false, the bottom sheet allows interaction with the screen, permitting actions outside of the sheet.
  * expand to the [FlexibleSheetValue.FullyExpanded] state and move to the [FlexibleSheetValue.IntermediatelyExpanded] if available, either
  * programmatically or by user interaction.
+ * @param collapseOnFlingDown Determines if the bottom sheet should be collapsed to a suitable state on any downward fling gesture.
  */
 @Stable
 public class FlexibleSheetState(
@@ -61,6 +63,7 @@ public class FlexibleSheetState(
   public val containSystemBars: Boolean,
   public val allowNestedScroll: Boolean,
   public val isModal: Boolean,
+  public val collapseOnFlingDown: Boolean,
   public val animateSpec: AnimationSpec<Float>,
   initialValue: FlexibleSheetValue = FlexibleSheetValue.Hidden,
   confirmValueChange: (FlexibleSheetValue) -> Boolean = { true },
@@ -308,6 +311,7 @@ public class FlexibleSheetState(
       containSystemBars: Boolean,
       allowNestedScroll: Boolean,
       isModal: Boolean,
+      collapseOnFlingDown: Boolean,
       animateSpec: AnimationSpec<Float>,
       confirmValueChange: (FlexibleSheetValue) -> Boolean,
     ) = Saver<FlexibleSheetState, FlexibleSheetValue>(
@@ -318,6 +322,7 @@ public class FlexibleSheetState(
           skipIntermediatelyExpanded = skipIntermediatelyExpanded,
           skipSlightlyExpanded = skipSlightlyExpanded,
           isModal = isModal,
+          collapseOnFlingDown = collapseOnFlingDown,
           initialValue = savedValue,
           animateSpec = animateSpec,
           flexibleSheetSize = flexibleSheetSize,
@@ -380,45 +385,27 @@ public fun consumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
     return if (delta < 0 && source == NestedScrollSource.Drag) {
       onDragging.invoke(true)
       sheetState.swipeableState.dispatchRawDelta(delta).toOffset()
-    } else if (delta > 0 && source == NestedScrollSource.Fling &&
-      sheetState.currentValue == FlexibleSheetValue.FullyExpanded && !sheetState.isModal
-    ) {
+    } else if (delta > 0 && source == NestedScrollSource.Fling && sheetState.collapseOnFlingDown) {
       onDragging.invoke(true)
 
       val currentOffset = sheetState.swipeableState.dispatchRawDelta(delta)
-      val maxOffset = sheetState.swipeableState.calculateDispatchedOffset(
-        screenHeight * if (!sheetState.skipIntermediatelyExpanded) {
-          sheetState.flexibleSheetSize.intermediatelyExpanded
-        } else if (!sheetState.skipSlightlyExpanded) {
-          sheetState.flexibleSheetSize.slightlyExpanded
-        } else {
-          0f
-        },
-        delta,
-      )
-      val calculatedOffset = if (currentOffset > maxOffset) maxOffset else currentOffset
-      calculatedOffset.toOffset()
-    } else if (delta > 0 && source == NestedScrollSource.Fling &&
-      sheetState.currentValue == FlexibleSheetValue.IntermediatelyExpanded && !sheetState.isModal
-    ) {
-      onDragging.invoke(true)
 
-      val currentOffset = sheetState.swipeableState.dispatchRawDelta(delta)
-      val maxOffset = sheetState.swipeableState.calculateDispatchedOffset(
-        screenHeight * if (!sheetState.skipSlightlyExpanded) {
-          sheetState.flexibleSheetSize.slightlyExpanded
-        } else {
-          0f
-        },
-        delta,
-      )
-      val calculatedOffset = if (currentOffset > maxOffset) maxOffset else currentOffset
+      val offset = screenHeight * when (sheetState.currentValue) {
+        FlexibleSheetValue.FullyExpanded -> when {
+          !sheetState.skipIntermediatelyExpanded -> sheetState.flexibleSheetSize.intermediatelyExpanded
+          !sheetState.skipSlightlyExpanded -> sheetState.flexibleSheetSize.slightlyExpanded
+          else -> 0f
+        }
+        FlexibleSheetValue.IntermediatelyExpanded -> when {
+          !sheetState.skipSlightlyExpanded -> sheetState.flexibleSheetSize.slightlyExpanded
+          else -> 0f
+        }
+        else -> 0f
+      }
+      val maxOffset = sheetState.swipeableState.calculateDispatchedOffset(offset, delta)
+
+      val calculatedOffset = min(maxOffset, currentOffset)
       calculatedOffset.toOffset()
-    } else if (delta > 0 &&
-      sheetState.currentValue != FlexibleSheetValue.FullyExpanded && !sheetState.isModal
-    ) {
-      onDragging.invoke(true)
-      sheetState.swipeableState.dispatchRawDelta(delta).toOffset()
     } else {
       onDragging.invoke(false)
       Offset.Zero
@@ -483,6 +470,7 @@ public fun consumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
  * @param allowNestedScroll Whether the bottom sheet should allow the content to implement nested scrolling.
  * @param isModal Determines if the bottom sheet should be modal. If set to true, the sheet will include a scrim overlaying the background and
  * will be dismissed upon touching outside of the sheet. If set to false, the bottom sheet allows interaction with the screen, permitting actions outside of the sheet.
+ * @param collapseOnFlingDown Determines if the bottom sheet should be collapsed to a suitable state on any downward fling gesture.
  * @param flexibleSheetSize FlexibleSheetSize constraints the content size of [FlexibleBottomSheet] based on its states.
  * @param confirmValueChange Optional callback invoked to confirm or veto a pending state change.
  */
@@ -492,6 +480,7 @@ public fun rememberFlexibleBottomSheetState(
   skipIntermediatelyExpanded: Boolean = false,
   skipSlightlyExpanded: Boolean = true,
   isModal: Boolean = false,
+  collapseOnFlingDown: Boolean = !isModal,
   containSystemBars: Boolean = false,
   allowNestedScroll: Boolean = true,
   animateSpec: AnimationSpec<Float> = SwipeableV2Defaults.AnimationSpec,
@@ -508,6 +497,7 @@ public fun rememberFlexibleBottomSheetState(
   skipIntermediatelyExpanded = skipIntermediatelyExpanded,
   skipSlightlyExpanded = skipSlightlyExpanded,
   isModal = isModal,
+  collapseOnFlingDown = collapseOnFlingDown,
   animateSpec = animateSpec,
   confirmValueChange = confirmValueChange,
   flexibleSheetSize = flexibleSheetSize,
@@ -521,6 +511,7 @@ private fun rememberFlexibleSheetState(
   skipIntermediatelyExpanded: Boolean = false,
   skipSlightlyExpanded: Boolean = false,
   isModal: Boolean = true,
+  collapseOnFlingDown: Boolean = !isModal,
   confirmValueChange: (FlexibleSheetValue) -> Boolean = { true },
   animateSpec: AnimationSpec<Float> = SwipeableV2Defaults.AnimationSpec,
   initialValue: FlexibleSheetValue = FlexibleSheetValue.Hidden,
@@ -538,6 +529,7 @@ private fun rememberFlexibleSheetState(
       skipIntermediatelyExpanded = skipIntermediatelyExpanded,
       skipSlightlyExpanded = skipSlightlyExpanded,
       isModal = isModal,
+      collapseOnFlingDown = collapseOnFlingDown,
       animateSpec = animateSpec,
       flexibleSheetSize = flexibleSheetSize,
       containSystemBars = containSystemBars,
@@ -550,6 +542,7 @@ private fun rememberFlexibleSheetState(
       skipIntermediatelyExpanded = skipIntermediatelyExpanded,
       skipSlightlyExpanded = skipSlightlyExpanded,
       isModal = isModal,
+      collapseOnFlingDown = collapseOnFlingDown,
       initialValue = initialValue,
       animateSpec = animateSpec,
       confirmValueChange = confirmValueChange,
