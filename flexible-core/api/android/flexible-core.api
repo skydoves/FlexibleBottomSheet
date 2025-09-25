@@ -4,9 +4,8 @@ public abstract interface class com/skydoves/flexible/core/AnchorChangeHandler {
 
 public final class com/skydoves/flexible/core/ComposableSingletons$FlexibleBottomSheetPopupKt {
 	public static final field INSTANCE Lcom/skydoves/flexible/core/ComposableSingletons$FlexibleBottomSheetPopupKt;
-	public static field lambda-1 Lkotlin/jvm/functions/Function2;
 	public fun <init> ()V
-	public final fun getLambda-1$flexible_core_release ()Lkotlin/jvm/functions/Function2;
+	public final fun getLambda$-830282246$flexible_core_release ()Lkotlin/jvm/functions/Function2;
 }
 
 public final class com/skydoves/flexible/core/FlexibleSheetSize {

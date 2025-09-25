@@ -12,9 +12,8 @@ public final class com/skydoves/flexible/bottomsheet/material/BottomSheetDefault
 
 public final class com/skydoves/flexible/bottomsheet/material/ComposableSingletons$FlexibleBottomSheetKt {
 	public static final field INSTANCE Lcom/skydoves/flexible/bottomsheet/material/ComposableSingletons$FlexibleBottomSheetKt;
-	public static field lambda-1 Lkotlin/jvm/functions/Function2;
 	public fun <init> ()V
-	public final fun getLambda-1$flexible_bottomsheet_material_release ()Lkotlin/jvm/functions/Function2;
+	public final fun getLambda$-1839493665$flexible_bottomsheet_material_release ()Lkotlin/jvm/functions/Function2;
 }
 
 public final class com/skydoves/flexible/bottomsheet/material/FlexibleBottomSheetKt {
