@@ -1,4 +1,5 @@
 import com.skydoves.flexible.Configuration
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 @Suppress("DSL_SCOPE_VIOLATION")
 plugins {
@@ -138,12 +139,14 @@ dependencies {
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-  kotlinOptions {
-    jvmTarget = "1.8"
-    freeCompilerArgs += listOf(
-      "-Xexplicit-api=strict",
-      "-Xopt-in=androidx.compose.material3.ExperimentalMaterial3Api",
-      "-Xopt-in=com.skydoves.flexible.core.InternalFlexibleApi",
+  compilerOptions {
+    jvmTarget.set(JvmTarget.JVM_11)
+    freeCompilerArgs.addAll(
+      listOf(
+        "-Xexplicit-api=strict",
+        "-Xopt-in=androidx.compose.material3.ExperimentalMaterial3Api",
+        "-Xopt-in=com.skydoves.flexible.core.InternalFlexibleApi",
+      )
     )
   }
 }

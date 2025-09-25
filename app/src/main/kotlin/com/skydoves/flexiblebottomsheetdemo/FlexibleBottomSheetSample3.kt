@@ -45,8 +45,8 @@ import com.skydoves.flexible.core.FlexibleSheetValue
 import com.skydoves.flexible.core.rememberFlexibleBottomSheetState
 import com.skydoves.flexiblebottomsheetdemo.mocks.MockUtils
 import com.skydoves.landscapist.ImageOptions
-import com.skydoves.landscapist.animation.crossfade.CrossfadePlugin
 import com.skydoves.landscapist.components.rememberImageComponent
+import com.skydoves.landscapist.crossfade.CrossfadePlugin
 import com.skydoves.landscapist.glide.GlideImage
 import com.skydoves.orbital.Orbital
 import com.skydoves.orbital.animateBounds

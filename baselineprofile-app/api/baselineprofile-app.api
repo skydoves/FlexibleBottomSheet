@@ -2,28 +2,27 @@ public final class com/skydoves/flexible/baselineprofile/app/BuildConfig {
 	public static final field APPLICATION_ID Ljava/lang/String;
 	public static final field BUILD_TYPE Ljava/lang/String;
 	public static final field DEBUG Z
+	public static final field VERSION_CODE I
+	public static final field VERSION_NAME Ljava/lang/String;
 	public fun <init> ()V
 }
 
 public final class com/skydoves/flexible/baselineprofile/app/ComposableSingletons$FlexibleBottomSheetMaterial3Kt {
 	public static final field INSTANCE Lcom/skydoves/flexible/baselineprofile/app/ComposableSingletons$FlexibleBottomSheetMaterial3Kt;
-	public static field lambda-1 Lkotlin/jvm/functions/Function3;
 	public fun <init> ()V
-	public final fun getLambda-1$baselineprofile_app_release ()Lkotlin/jvm/functions/Function3;
+	public final fun getLambda$-1387133595$baselineprofile_app_release ()Lkotlin/jvm/functions/Function3;
 }
 
 public final class com/skydoves/flexible/baselineprofile/app/ComposableSingletons$FlexibleBottomSheetMaterialKt {
 	public static final field INSTANCE Lcom/skydoves/flexible/baselineprofile/app/ComposableSingletons$FlexibleBottomSheetMaterialKt;
-	public static field lambda-1 Lkotlin/jvm/functions/Function3;
 	public fun <init> ()V
-	public final fun getLambda-1$baselineprofile_app_release ()Lkotlin/jvm/functions/Function3;
+	public final fun getLambda$-1651577420$baselineprofile_app_release ()Lkotlin/jvm/functions/Function3;
 }
 
 public final class com/skydoves/flexible/baselineprofile/app/ComposableSingletons$MainActivityKt {
 	public static final field INSTANCE Lcom/skydoves/flexible/baselineprofile/app/ComposableSingletons$MainActivityKt;
-	public static field lambda-1 Lkotlin/jvm/functions/Function2;
 	public fun <init> ()V
-	public final fun getLambda-1$baselineprofile_app_release ()Lkotlin/jvm/functions/Function2;
+	public final fun getLambda$603369115$baselineprofile_app_release ()Lkotlin/jvm/functions/Function2;
 }
 
 public final class com/skydoves/flexible/baselineprofile/app/FlexibleBottomSheetMaterial3Kt {
