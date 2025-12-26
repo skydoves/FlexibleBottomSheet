@@ -1,6 +1,6 @@
 import com.skydoves.flexible.Configuration
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
-@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
   id(libs.plugins.android.application.get().pluginId)
   id(libs.plugins.kotlin.android.get().pluginId)
@@ -20,10 +20,6 @@ android {
   compileOptions {
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
-  }
-
-  kotlinOptions {
-    jvmTarget = libs.versions.jvmTarget.get()
   }
 
   buildFeatures {
@@ -59,4 +55,10 @@ dependencies {
   implementation(libs.androidx.compose.material.iconsExtended)
 
   baselineProfile(project(":baselineprofile"))
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+  compilerOptions {
+    jvmTarget.set(JvmTarget.JVM_11)
+  }
 }
