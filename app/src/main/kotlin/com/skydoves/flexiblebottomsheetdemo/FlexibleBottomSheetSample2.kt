@@ -31,13 +31,17 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -81,6 +85,13 @@ fun FlexibleBottomSheetSample2(
 private fun BottomSheetContent(
   targetValue: FlexibleSheetValue,
 ) {
+  val focusRequester = remember { FocusRequester() }
+
+  // Automatically focus the TextField and show keyboard when bottom sheet appears
+  LaunchedEffect(Unit) {
+    focusRequester.requestFocus()
+  }
+
   Row(
     modifier = Modifier
       .fillMaxWidth()
@@ -101,6 +112,13 @@ private fun BottomSheetContent(
         .weight(1f),
       verticalArrangement = Arrangement.Center,
     ) {
+      val (text, input) = remember { mutableStateOf("") }
+      TextField(
+        value = text,
+        onValueChange = { input.invoke(it) },
+        modifier = Modifier.focusRequester(focusRequester),
+      )
+
       Text(
         modifier = Modifier.padding(bottom = 1.dp),
         text = "lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor",

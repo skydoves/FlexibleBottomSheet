@@ -197,9 +197,9 @@ private class FlexibleBottomSheetWindow(
             WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
           ).inv()
       } else {
-        flags or WindowManager.LayoutParams.FLAG_IGNORE_CHEEK_PRESSES or
-          WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM or
-          WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+        // For non-modal: allow window to be focusable for input fields,
+        // but touches outside the window bounds pass through to windows behind it
+        flags or WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
           WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH or
           WindowManager.LayoutParams.FLAG_SPLIT_TOUCH
       }
