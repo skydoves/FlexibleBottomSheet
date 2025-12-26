@@ -1,6 +1,6 @@
 import com.skydoves.flexible.Configuration
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
-@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
   id(libs.plugins.android.test.get().pluginId)
   id(libs.plugins.kotlin.android.get().pluginId)
@@ -14,10 +14,6 @@ android {
   compileOptions {
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
-  }
-
-  kotlinOptions {
-    jvmTarget = libs.versions.jvmTarget.get()
   }
 
   defaultConfig {
@@ -55,4 +51,10 @@ dependencies {
   implementation(libs.androidx.test.uiautomator)
   implementation(libs.androidx.benchmark.macro)
   implementation(libs.androidx.profileinstaller)
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+  compilerOptions {
+    jvmTarget.set(JvmTarget.JVM_11)
+  }
 }
