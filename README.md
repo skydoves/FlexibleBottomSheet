@@ -98,7 +98,6 @@ FlexibleBottomSheet(
     skipSlightlyExpanded = false,
     skipIntermediatelyExpanded = false,
     isModal = true,
-    containSystemBars = false,
     allowNestedScroll = true,
     flexibleSheetSize = FlexibleSheetSize(
       fullyExpanded = 1.0f,
