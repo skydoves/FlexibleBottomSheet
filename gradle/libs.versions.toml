@@ -11,7 +11,7 @@ androidxActivity = "1.12.2"
 androidxTest = "1.7.0"
 androidxNavigation = "2.9.6"
 androidxLifecycle = "2.10.0"
-landscapist = "2.7.0"
+landscapist = "2.8.2"
 baselineProfiles = "1.4.1"
 uiAutomator = "2.3.0"
 spotless = "6.21.0"
@@ -48,7 +48,7 @@ androidx-compose-foundation = { group = "androidx.compose.foundation", name = "f
 androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime" }
 androidx-compose-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout-compose", version.ref = "androidxComposeConstraintLayout" }
 
-landscapist-glide = { group = "com.github.skydoves", name = "landscapist-glide", version.ref = "landscapist" }
+landscapist-image = { group = "com.github.skydoves", name = "landscapist-image", version.ref = "landscapist" }
 landscapist-placeholder = { group = "com.github.skydoves", name = "landscapist-placeholder", version.ref = "landscapist" }
 landscapist-animation = { group = "com.github.skydoves", name = "landscapist-animation", version.ref = "landscapist" }
 

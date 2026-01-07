@@ -18,12 +18,18 @@ package com.skydoves.flexible.core
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.PixelFormat
+import android.os.Build
 import android.view.Gravity
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewTreeObserver
 import android.view.WindowManager
+import android.window.OnBackInvokedCallback
+import android.window.OnBackInvokedDispatcher
+import androidx.activity.OnBackPressedDispatcherOwner
 import androidx.activity.compose.BackHandler
+import androidx.activity.findViewTreeOnBackPressedDispatcherOwner
+import androidx.activity.setViewTreeOnBackPressedDispatcherOwner
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.WindowInsets
@@ -70,10 +76,8 @@ public actual fun FlexibleBottomSheetPopup(
   val id = rememberSaveable { UUID.randomUUID() }
   val parentComposition = rememberCompositionContext()
   val currentContent by rememberUpdatedState(content)
-
-  // Detect if edge-to-edge mode is enabled (via enableEdgeToEdge() or on Android 15+)
-  // to automatically skip window insets padding when appropriate.
   val isEdgeToEdge = isEdgeToEdgeEnabled(view)
+  val onBackPressedDispatcherOwner = view.findViewTreeOnBackPressedDispatcherOwner()
 
   val flexibleBottomSheetWindow = remember {
     FlexibleBottomSheetWindow(
@@ -81,18 +85,19 @@ public actual fun FlexibleBottomSheetPopup(
       composeView = view,
       sheetState = sheetState,
       isEdgeToEdge = isEdgeToEdge,
+      onBackPressedDispatcherOwner = onBackPressedDispatcherOwner,
       saveId = id,
     ).apply {
       setCustomContent(
         parent = parentComposition,
         content = {
+          if (!sheetState.skipHiddenState) {
+            BackHandler { onDismissRequest() }
+          }
           Box(
             Modifier
               .semantics { this.popup() }
               .then(
-                // Skip window insets padding when:
-                // 1. containSystemBars is explicitly set to true, OR
-                // 2. Edge-to-edge mode is detected (enableEdgeToEdge() or Android 15+)
                 if (sheetState.containSystemBars || isEdgeToEdge) {
                   Modifier
                 } else {
@@ -108,14 +113,8 @@ public actual fun FlexibleBottomSheetPopup(
     }
   }
 
-  // Update the parent composition context on every recomposition to ensure
-  // CompositionLocal changes (e.g., locale updates) propagate to the popup window.
   SideEffect {
     flexibleBottomSheetWindow.updateParentComposition(parentComposition)
-  }
-
-  if (!sheetState.skipHiddenState) {
-    BackHandler { onDismissRequest() }
   }
 
   DisposableEffect(flexibleBottomSheetWindow) {
@@ -134,6 +133,7 @@ private class FlexibleBottomSheetWindow(
   private val composeView: View,
   private val sheetState: FlexibleSheetState,
   private val isEdgeToEdge: Boolean,
+  onBackPressedDispatcherOwner: OnBackPressedDispatcherOwner?,
   saveId: UUID,
 ) :
   AbstractComposeView(composeView.context),
@@ -142,19 +142,30 @@ private class FlexibleBottomSheetWindow(
 
   init {
     id = android.R.id.content
-    // Set up view owners
     setViewTreeLifecycleOwner(composeView.findViewTreeLifecycleOwner())
     setViewTreeViewModelStoreOwner(composeView.findViewTreeViewModelStoreOwner())
     setViewTreeSavedStateRegistryOwner(composeView.findViewTreeSavedStateRegistryOwner())
+    onBackPressedDispatcherOwner?.let { setViewTreeOnBackPressedDispatcherOwner(it) }
     setTag(androidx.compose.ui.R.id.compose_view_saveable_id_tag, "Popup:$saveId")
-    // Enable children to draw their shadow by not clipping them
     clipChildren = false
+    isFocusable = true
+    isFocusableInTouchMode = true
+
+    setOnKeyListener { _, keyCode, event ->
+      if (keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP) {
+        onDismissRequest()
+        true
+      } else {
+        false
+      }
+    }
   }
 
   private val windowManager =
     composeView.context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
 
   private var content: @Composable () -> Unit by mutableStateOf({})
+  private var onBackInvokedCallback: OnBackInvokedCallback? = null
 
   override var shouldCreateCompositionOnAttachedToWindow: Boolean = false
     private set
@@ -179,9 +190,25 @@ private class FlexibleBottomSheetWindow(
 
   fun show() {
     windowManager.addView(this, getWindowParams())
+    requestFocus()
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+      onBackInvokedCallback = OnBackInvokedCallback { onDismissRequest() }
+      findOnBackInvokedDispatcher()?.registerOnBackInvokedCallback(
+        OnBackInvokedDispatcher.PRIORITY_DEFAULT,
+        onBackInvokedCallback!!,
+      )
+    }
   }
 
   fun dismiss() {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+      onBackInvokedCallback?.let { callback ->
+        findOnBackInvokedDispatcher()?.unregisterOnBackInvokedCallback(callback)
+      }
+      onBackInvokedCallback = null
+    }
+
     setViewTreeLifecycleOwner(null)
     setViewTreeSavedStateRegistryOwner(null)
     composeView.viewTreeObserver.removeOnGlobalLayoutListener(this)
@@ -195,10 +222,9 @@ private class FlexibleBottomSheetWindow(
       // Fill up the entire app view
       width = WindowManager.LayoutParams.MATCH_PARENT
 
-      // When edge-to-edge is enabled, use MATCH_PARENT height and TOP gravity
-      // to properly fill the screen including system bars.
-      // Otherwise, use WRAP_CONTENT with BOTTOM gravity for traditional behavior.
-      if (isEdgeToEdge) {
+      // For modal sheets with edge-to-edge, use MATCH_PARENT to cover system bars.
+      // For non-modal sheets, use WRAP_CONTENT to allow touch-through (Google Maps style).
+      if (isEdgeToEdge && sheetState.isModal) {
         height = WindowManager.LayoutParams.MATCH_PARENT
         gravity = Gravity.TOP or Gravity.CENTER
       } else {
@@ -225,7 +251,8 @@ private class FlexibleBottomSheetWindow(
       privateFlagsValue = privateFlagsValue or noAnimFlag
       privateFlags.setInt(this, privateFlagsValue)
 
-      // Flags specific to flexible bottom sheet.
+      flags = flags and WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE.inv()
+
       flags = if (sheetState.isModal) {
         flags and (
           WindowManager.LayoutParams.FLAG_IGNORE_CHEEK_PRESSES or
@@ -256,20 +283,11 @@ private class FlexibleBottomSheetWindow(
    */
   override fun dispatchKeyEvent(event: KeyEvent): Boolean {
     if (event.keyCode == KeyEvent.KEYCODE_BACK) {
-      if (keyDispatcherState == null) {
-        return super.dispatchKeyEvent(event)
-      }
-      if (event.action == KeyEvent.ACTION_DOWN && event.repeatCount == 0) {
-        val state = keyDispatcherState
-        state?.startTracking(event, this)
+      if (event.action == KeyEvent.ACTION_UP && !event.isCanceled) {
+        onDismissRequest()
         return true
-      } else if (event.action == KeyEvent.ACTION_UP) {
-        val state = keyDispatcherState
-        if (state != null && state.isTracking(event) && !event.isCanceled) {
-          onDismissRequest()
-          return true
-        }
       }
+      return true
     }
     return super.dispatchKeyEvent(event)
   }

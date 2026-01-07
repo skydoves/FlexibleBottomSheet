@@ -10,13 +10,13 @@ public final class com/skydoves/flexible/baselineprofile/app/BuildConfig {
 public final class com/skydoves/flexible/baselineprofile/app/ComposableSingletons$FlexibleBottomSheetMaterial3Kt {
 	public static final field INSTANCE Lcom/skydoves/flexible/baselineprofile/app/ComposableSingletons$FlexibleBottomSheetMaterial3Kt;
 	public fun <init> ()V
-	public final fun getLambda$-1387133595$baselineprofile_app_release ()Lkotlin/jvm/functions/Function3;
+	public final fun getLambda$-1519457340$baselineprofile_app_release ()Lkotlin/jvm/functions/Function3;
 }
 
 public final class com/skydoves/flexible/baselineprofile/app/ComposableSingletons$FlexibleBottomSheetMaterialKt {
 	public static final field INSTANCE Lcom/skydoves/flexible/baselineprofile/app/ComposableSingletons$FlexibleBottomSheetMaterialKt;
 	public fun <init> ()V
-	public final fun getLambda$-1651577420$baselineprofile_app_release ()Lkotlin/jvm/functions/Function3;
+	public final fun getLambda$1981800403$baselineprofile_app_release ()Lkotlin/jvm/functions/Function3;
 }
 
 public final class com/skydoves/flexible/baselineprofile/app/ComposableSingletons$MainActivityKt {

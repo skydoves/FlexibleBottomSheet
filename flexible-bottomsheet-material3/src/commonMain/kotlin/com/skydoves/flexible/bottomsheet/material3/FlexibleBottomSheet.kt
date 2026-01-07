@@ -97,6 +97,7 @@ import kotlinx.coroutines.launch
 @Composable
 public fun FlexibleBottomSheet(
   onDismissRequest: () -> Unit,
+  onBackPressed: () -> Unit = {},
   modifier: Modifier = Modifier,
   sheetState: FlexibleSheetState = rememberFlexibleBottomSheetState(),
   onTargetChanges: (FlexibleSheetValue) -> Unit = {},
@@ -168,6 +169,7 @@ public fun FlexibleBottomSheet(
       } else { // Is expanded without collapsed state or is collapsed.
         scope.launch { sheetState.hide() }.invokeOnCompletion { onDismissRequest() }
       }
+      onBackPressed.invoke()
     },
     sheetState = sheetState,
     windowInsets = windowInsets,

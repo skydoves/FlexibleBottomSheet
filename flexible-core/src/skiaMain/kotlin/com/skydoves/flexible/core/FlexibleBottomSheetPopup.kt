@@ -33,6 +33,7 @@ import androidx.compose.ui.window.PopupProperties
 /**
  * Popup specific for flexible bottom sheet.
  */
+@Suppress("UNUSED_PARAMETER")
 @Composable
 @InternalFlexibleApi
 public actual fun FlexibleBottomSheetPopup(

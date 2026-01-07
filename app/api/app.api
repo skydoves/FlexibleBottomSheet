@@ -10,7 +10,7 @@ public final class com/skydoves/flexiblebottomsheetdemo/BuildConfig {
 public final class com/skydoves/flexiblebottomsheetdemo/ComposableSingletons$FlexibleBottomSheetSample3Kt {
 	public static final field INSTANCE Lcom/skydoves/flexiblebottomsheetdemo/ComposableSingletons$FlexibleBottomSheetSample3Kt;
 	public fun <init> ()V
-	public final fun getLambda$1089064187$app_release ()Lkotlin/jvm/functions/Function3;
+	public final fun getLambda$956740442$app_release ()Lkotlin/jvm/functions/Function3;
 }
 
 public final class com/skydoves/flexiblebottomsheetdemo/ComposableSingletons$MainActivityKt {

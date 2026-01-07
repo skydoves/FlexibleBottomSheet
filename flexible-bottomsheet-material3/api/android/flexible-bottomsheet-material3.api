@@ -14,10 +14,10 @@ public final class com/skydoves/flexible/bottomsheet/material3/BottomSheetDefaul
 public final class com/skydoves/flexible/bottomsheet/material3/ComposableSingletons$FlexibleBottomSheetKt {
 	public static final field INSTANCE Lcom/skydoves/flexible/bottomsheet/material3/ComposableSingletons$FlexibleBottomSheetKt;
 	public fun <init> ()V
-	public final fun getLambda$-1589537738$flexible_bottomsheet_material3_release ()Lkotlin/jvm/functions/Function2;
+	public final fun getLambda$1796605034$flexible_bottomsheet_material3_release ()Lkotlin/jvm/functions/Function2;
 }
 
 public final class com/skydoves/flexible/bottomsheet/material3/FlexibleBottomSheetKt {
-	public static final fun FlexibleBottomSheet-3am-VeE (Lkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;Lcom/skydoves/flexible/core/FlexibleSheetState;Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/graphics/Shape;JJFJLkotlin/jvm/functions/Function2;Landroidx/compose/foundation/layout/WindowInsets;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;III)V
+	public static final fun FlexibleBottomSheet-Ocinh5E (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;Lcom/skydoves/flexible/core/FlexibleSheetState;Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/graphics/Shape;JJFJLkotlin/jvm/functions/Function2;Landroidx/compose/foundation/layout/WindowInsets;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;III)V
 }
 
