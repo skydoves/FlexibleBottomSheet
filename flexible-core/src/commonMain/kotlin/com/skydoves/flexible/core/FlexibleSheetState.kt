@@ -380,47 +380,17 @@ public fun consumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
     return if (delta < 0 && source == NestedScrollSource.Drag) {
       onDragging.invoke(true)
       sheetState.swipeableState.dispatchRawDelta(delta).toOffset()
-    } else if (delta > 0 && source == NestedScrollSource.Fling &&
-      sheetState.currentValue == FlexibleSheetValue.FullyExpanded && !sheetState.isModal
-    ) {
-      onDragging.invoke(true)
-
-      val currentOffset = sheetState.swipeableState.dispatchRawDelta(delta)
-      val maxOffset = sheetState.swipeableState.calculateDispatchedOffset(
-        screenHeight * if (!sheetState.skipIntermediatelyExpanded) {
-          sheetState.flexibleSheetSize.intermediatelyExpanded
-        } else if (!sheetState.skipSlightlyExpanded) {
-          sheetState.flexibleSheetSize.slightlyExpanded
-        } else {
-          0f
-        },
-        delta,
-      )
-      val calculatedOffset = if (currentOffset > maxOffset) maxOffset else currentOffset
-      calculatedOffset.toOffset()
-    } else if (delta > 0 && source == NestedScrollSource.Fling &&
-      sheetState.currentValue == FlexibleSheetValue.IntermediatelyExpanded && !sheetState.isModal
-    ) {
-      onDragging.invoke(true)
-
-      val currentOffset = sheetState.swipeableState.dispatchRawDelta(delta)
-      val maxOffset = sheetState.swipeableState.calculateDispatchedOffset(
-        screenHeight * if (!sheetState.skipSlightlyExpanded) {
-          sheetState.flexibleSheetSize.slightlyExpanded
-        } else {
-          0f
-        },
-        delta,
-      )
-      val calculatedOffset = if (currentOffset > maxOffset) maxOffset else currentOffset
-      calculatedOffset.toOffset()
-    } else if (delta > 0 &&
+    } else if (delta > 0 && source == NestedScrollSource.Drag &&
       sheetState.currentValue != FlexibleSheetValue.FullyExpanded && !sheetState.isModal
     ) {
       onDragging.invoke(true)
       sheetState.swipeableState.dispatchRawDelta(delta).toOffset()
     } else {
-      onDragging.invoke(false)
+      // For non-modal sheets, don't set isDragging = false during fling
+      // to prevent anchor recalculation before settle animation starts
+      if (sheetState.isModal) {
+        onDragging.invoke(false)
+      }
       Offset.Zero
     }
   }
@@ -433,10 +403,11 @@ public fun consumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
     return if (source == NestedScrollSource.Drag) {
       onDragging.invoke(true)
       sheetState.swipeableState.dispatchRawDelta(available.toFloat()).toOffset()
-    } else if (sheetState.currentValue != FlexibleSheetValue.Hidden && !sheetState.isModal) {
-      sheetState.swipeableState.dispatchRawDelta(available.toFloat()).toOffset()
     } else {
-      onDragging.invoke(false)
+      // For non-modal sheets, don't set isDragging = false during fling
+      if (sheetState.isModal) {
+        onDragging.invoke(false)
+      }
       Offset.Zero
     }
   }
@@ -453,7 +424,6 @@ public fun consumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
   }
 
   override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
-    onDragging.invoke(false)
     onFling(available.toFloat())
     return available
   }
