@@ -15,13 +15,15 @@
  */
 package com.skydoves.flexible.core
 
+import androidx.compose.runtime.Immutable
+
 /**
  * FlexibleSheetSize constraints the content size of [FlexibleBottomSheet] based on its states.
  * These constraints are calculated by multiplying the ratio with the maximum display height.
  *
  * Three expanding states are defined: [FlexibleSheetValue.FullyExpanded], [FlexibleSheetValue.IntermediatelyExpanded], and [FlexibleSheetValue.SlightlyExpanded].
-
  */
+@Immutable
 public data class FlexibleSheetSize(
   public val fullyExpanded: Float = 1.0f,
   public val intermediatelyExpanded: Float = 0.5f,
