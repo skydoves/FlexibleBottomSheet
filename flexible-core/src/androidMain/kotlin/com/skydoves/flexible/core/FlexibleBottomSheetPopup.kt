@@ -70,6 +70,11 @@ public actual fun FlexibleBottomSheetPopup(
   val id = rememberSaveable { UUID.randomUUID() }
   val parentComposition = rememberCompositionContext()
   val currentContent by rememberUpdatedState(content)
+
+  // Detect if edge-to-edge mode is enabled (via enableEdgeToEdge() or on Android 15+)
+  // to automatically skip window insets padding when appropriate.
+  val isEdgeToEdge = isEdgeToEdgeEnabled(view)
+
   val flexibleBottomSheetWindow = remember {
     FlexibleBottomSheetWindow(
       onDismissRequest = onDismissRequest,
@@ -83,7 +88,16 @@ public actual fun FlexibleBottomSheetPopup(
           Box(
             Modifier
               .semantics { this.popup() }
-              .windowInsetsPadding(windowInsets)
+              .then(
+                // Skip window insets padding when:
+                // 1. containSystemBars is explicitly set to true, OR
+                // 2. Edge-to-edge mode is detected (enableEdgeToEdge() or Android 15+)
+                if (sheetState.containSystemBars || isEdgeToEdge) {
+                  Modifier
+                } else {
+                  Modifier.windowInsetsPadding(windowInsets)
+                },
+              )
               .imePadding(),
           ) {
             currentContent()

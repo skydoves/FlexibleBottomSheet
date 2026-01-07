@@ -68,7 +68,6 @@ fun FlexibleBottomSheetSample2(
     ),
     isModal = false,
     skipSlightlyExpanded = false,
-    containSystemBars = false,
   )
 
   FlexibleBottomSheet(

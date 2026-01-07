@@ -492,7 +492,7 @@ public fun rememberFlexibleBottomSheetState(
   skipIntermediatelyExpanded: Boolean = false,
   skipSlightlyExpanded: Boolean = true,
   isModal: Boolean = false,
-  containSystemBars: Boolean = false,
+  containSystemBars: Boolean = true,
   allowNestedScroll: Boolean = true,
   animateSpec: AnimationSpec<Float> = SwipeableV2Defaults.AnimationSpec,
   flexibleSheetSize: FlexibleSheetSize = FlexibleSheetSize(),
@@ -525,7 +525,7 @@ private fun rememberFlexibleSheetState(
   animateSpec: AnimationSpec<Float> = SwipeableV2Defaults.AnimationSpec,
   initialValue: FlexibleSheetValue = FlexibleSheetValue.Hidden,
   flexibleSheetSize: FlexibleSheetSize = FlexibleSheetSize(),
-  containSystemBars: Boolean = false,
+  containSystemBars: Boolean = true,
   allowNestedScroll: Boolean = true,
 ): FlexibleSheetState {
   return rememberSaveable(
