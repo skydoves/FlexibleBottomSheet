@@ -32,6 +32,7 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -92,6 +93,12 @@ public actual fun FlexibleBottomSheetPopup(
     }
   }
 
+  // Update the parent composition context on every recomposition to ensure
+  // CompositionLocal changes (e.g., locale updates) propagate to the popup window.
+  SideEffect {
+    flexibleBottomSheetWindow.updateParentComposition(parentComposition)
+  }
+
   if (!sheetState.skipHiddenState) {
     BackHandler { onDismissRequest() }
   }
@@ -148,6 +155,10 @@ private class FlexibleBottomSheetWindow(
     parent?.let { setParentCompositionContext(it) }
     this.content = content
     shouldCreateCompositionOnAttachedToWindow = true
+  }
+
+  fun updateParentComposition(parent: CompositionContext) {
+    setParentCompositionContext(parent)
   }
 
   fun show() {
