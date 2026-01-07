@@ -21,7 +21,6 @@ import android.view.Window
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat
 
 /**
  * Detects if edge-to-edge mode is enabled for the current window.

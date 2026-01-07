@@ -79,8 +79,9 @@ public actual fun FlexibleBottomSheetPopup(
     FlexibleBottomSheetWindow(
       onDismissRequest = onDismissRequest,
       composeView = view,
-      saveId = id,
       sheetState = sheetState,
+      isEdgeToEdge = isEdgeToEdge,
+      saveId = id,
     ).apply {
       setCustomContent(
         parent = parentComposition,
@@ -132,6 +133,7 @@ private class FlexibleBottomSheetWindow(
   private var onDismissRequest: () -> Unit,
   private val composeView: View,
   private val sheetState: FlexibleSheetState,
+  private val isEdgeToEdge: Boolean,
   saveId: UUID,
 ) :
   AbstractComposeView(composeView.context),
@@ -188,13 +190,21 @@ private class FlexibleBottomSheetWindow(
 
   private fun getWindowParams(windowHeight: Int? = null): WindowManager.LayoutParams {
     return WindowManager.LayoutParams().apply {
-      // Position bottom sheet from the bottom of the screen
-      gravity = Gravity.BOTTOM or Gravity.CENTER
       // Application panel window
       type = WindowManager.LayoutParams.TYPE_APPLICATION_PANEL
       // Fill up the entire app view
       width = WindowManager.LayoutParams.MATCH_PARENT
-      height = windowHeight ?: WindowManager.LayoutParams.WRAP_CONTENT
+
+      // When edge-to-edge is enabled, use MATCH_PARENT height and TOP gravity
+      // to properly fill the screen including system bars.
+      // Otherwise, use WRAP_CONTENT with BOTTOM gravity for traditional behavior.
+      if (isEdgeToEdge) {
+        height = WindowManager.LayoutParams.MATCH_PARENT
+        gravity = Gravity.TOP or Gravity.CENTER
+      } else {
+        height = windowHeight ?: WindowManager.LayoutParams.WRAP_CONTENT
+        gravity = Gravity.BOTTOM or Gravity.CENTER
+      }
       // Format of screen pixels
       format = PixelFormat.TRANSLUCENT
       // Title used as fallback for a11y services
@@ -229,7 +239,11 @@ private class FlexibleBottomSheetWindow(
           WindowManager.LayoutParams.FLAG_SPLIT_TOUCH
       }
 
-      flags = if (sheetState.containSystemBars && !sheetState.isModal) {
+      // Use FLAG_LAYOUT_NO_LIMITS to extend into system bars when:
+      // 1. Edge-to-edge mode is detected (enableEdgeToEdge() or Android 15+), OR
+      // 2. containSystemBars is explicitly set to true (for non-modal sheets)
+      // This allows the scrim and content to fully cover the status bar area.
+      flags = if (isEdgeToEdge || (sheetState.containSystemBars && !sheetState.isModal)) {
         flags or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
       } else {
         flags or WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
