@@ -222,10 +222,9 @@ private class FlexibleBottomSheetWindow(
       // Fill up the entire app view
       width = WindowManager.LayoutParams.MATCH_PARENT
 
-      // When edge-to-edge is enabled, use MATCH_PARENT height and TOP gravity
-      // to properly fill the screen including system bars.
-      // Otherwise, use WRAP_CONTENT with BOTTOM gravity for traditional behavior.
-      if (isEdgeToEdge) {
+      // For modal sheets with edge-to-edge, use MATCH_PARENT to cover system bars.
+      // For non-modal sheets, use WRAP_CONTENT to allow touch-through (Google Maps style).
+      if (isEdgeToEdge && sheetState.isModal) {
         height = WindowManager.LayoutParams.MATCH_PARENT
         gravity = Gravity.TOP or Gravity.CENTER
       } else {
