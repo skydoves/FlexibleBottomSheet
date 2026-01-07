@@ -177,15 +177,6 @@ public fun FlexibleBottomSheet(
     var isDragging by remember { mutableStateOf(false) }
     val isAnimationRunning = sheetState.swipeableState.isAnimationRunning
     val screenHeightSize = screenHeight()
-
-    // Wrapped settleToDismiss that sets isDragging = false after animation completes
-    // This is needed for non-modal sheets where we don't set isDragging = false during fling
-    val settleWithDraggingReset: (velocity: Float) -> Unit = { velocity ->
-      scope.launch { sheetState.settle(velocity) }.invokeOnCompletion {
-        isDragging = false
-        if (!sheetState.isVisible) onDismissRequest()
-      }
-    }
     val screenHeightPxSize = screenHeightSize.toPx()
     val fullyExpandedHeight: Dp = screenHeightSize * sheetState.flexibleSheetSize.fullyExpanded
 
@@ -268,7 +259,7 @@ public fun FlexibleBottomSheet(
                   sheetState = sheetState,
                   orientation = Orientation.Vertical,
                   screenHeight = screenHeightSize.value,
-                  onFling = settleWithDraggingReset,
+                  onFling = settleToDismiss,
                   onDragging = {
                     isDragging = it
                   },
@@ -289,15 +280,9 @@ public fun FlexibleBottomSheet(
             onDragStarted = {
               isDragging = true
             },
-            onDragStopped = { velocity ->
-              if (sheetState.isModal) {
-                isDragging = false
-                settleToDismiss(velocity)
-              } else {
-                // For non-modal sheets, keep isDragging = true until animation completes
-                // to prevent anchor recalculation during the settle animation
-                settleWithDraggingReset(velocity)
-              }
+            onDragStopped = {
+              isDragging = false
+              settleToDismiss(it)
             },
           ),
         shape = shape,
