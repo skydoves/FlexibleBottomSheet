@@ -31,7 +31,6 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -41,7 +40,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -52,7 +50,7 @@ import com.skydoves.flexible.core.FlexibleSheetSize
 import com.skydoves.flexible.core.FlexibleSheetValue
 import com.skydoves.flexible.core.rememberFlexibleBottomSheetState
 import com.skydoves.flexiblebottomsheetdemo.mocks.MockUtils
-import com.skydoves.landscapist.glide.GlideImage
+import com.skydoves.landscapist.image.LandscapistImage
 
 @Composable
 fun FlexibleBottomSheetSample2(
@@ -96,7 +94,7 @@ private fun BottomSheetContent(
       .fillMaxWidth()
       .padding(12.dp),
   ) {
-    GlideImage(
+    LandscapistImage(
       modifier = Modifier
         .size(64.dp)
         .clip(CircleShape),
@@ -112,11 +110,11 @@ private fun BottomSheetContent(
       verticalArrangement = Arrangement.Center,
     ) {
       val (text, input) = remember { mutableStateOf("") }
-      TextField(
-        value = text,
-        onValueChange = { input.invoke(it) },
-        modifier = Modifier.focusRequester(focusRequester),
-      )
+//      TextField(
+//        value = text,
+//        onValueChange = { input.invoke(it) },
+//        modifier = Modifier.focusRequester(focusRequester),
+//      )
 
       Text(
         modifier = Modifier.padding(bottom = 1.dp),
@@ -156,7 +154,7 @@ private fun BottomSheetContent(
     columns = GridCells.Fixed(2),
   ) {
     items(items = MockUtils.getMockPosters(), key = { it.name }) {
-      GlideImage(
+      LandscapistImage(
         modifier = Modifier
           .fillMaxWidth()
           .height(230.dp)

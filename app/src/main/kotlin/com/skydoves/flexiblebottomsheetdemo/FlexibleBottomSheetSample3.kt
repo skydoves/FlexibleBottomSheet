@@ -47,7 +47,7 @@ import com.skydoves.flexiblebottomsheetdemo.mocks.MockUtils
 import com.skydoves.landscapist.ImageOptions
 import com.skydoves.landscapist.components.rememberImageComponent
 import com.skydoves.landscapist.crossfade.CrossfadePlugin
-import com.skydoves.landscapist.glide.GlideImage
+import com.skydoves.landscapist.image.LandscapistImage
 import com.skydoves.orbital.Orbital
 import com.skydoves.orbital.animateBounds
 import com.skydoves.orbital.rememberMovableContentOf
@@ -78,7 +78,7 @@ fun FlexibleBottomSheetSample3(
       val sizeAnim = spring<IntSize>(stiffness = Spring.StiffnessLow)
       val positionAnim = spring<IntOffset>(stiffness = Spring.StiffnessLow)
       val image = rememberMovableContentOf {
-        GlideImage(
+        LandscapistImage(
           imageModel = { MockUtils.getMockPoster().poster },
           component = rememberImageComponent {
             +CrossfadePlugin()
