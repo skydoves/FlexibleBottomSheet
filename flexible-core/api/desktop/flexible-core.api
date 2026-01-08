@@ -4,6 +4,8 @@ public abstract interface class com/skydoves/flexible/core/AnchorChangeHandler {
 
 public final class com/skydoves/flexible/core/FlexibleSheetSize {
 	public static final field $stable I
+	public static final field Companion Lcom/skydoves/flexible/core/FlexibleSheetSize$Companion;
+	public static final field WrapContent F
 	public fun <init> ()V
 	public fun <init> (FFF)V
 	public synthetic fun <init> (FFFILkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -14,10 +16,14 @@ public final class com/skydoves/flexible/core/FlexibleSheetSize {
 	public static synthetic fun copy$default (Lcom/skydoves/flexible/core/FlexibleSheetSize;FFFILjava/lang/Object;)Lcom/skydoves/flexible/core/FlexibleSheetSize;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getFullyExpanded ()F
+	public final fun getHasWrapContent ()Z
 	public final fun getIntermediatelyExpanded ()F
 	public final fun getSlightlyExpanded ()F
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/skydoves/flexible/core/FlexibleSheetSize$Companion {
 }
 
 public final class com/skydoves/flexible/core/FlexibleSheetState {

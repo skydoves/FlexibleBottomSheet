@@ -43,6 +43,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.collapse
 import androidx.compose.ui.semantics.dismiss
 import androidx.compose.ui.semantics.expand
@@ -60,6 +62,8 @@ import com.skydoves.flexible.core.emptySwipeWithinBottomSheetBoundsNestedScrollC
 import com.skydoves.flexible.core.flexibleBottomSheetAnchorChangeHandler
 import com.skydoves.flexible.core.flexibleBottomSheetSwipeable
 import com.skydoves.flexible.core.rememberFlexibleBottomSheetState
+import com.skydoves.flexible.core.removeMinHeightConstraint
+import com.skydoves.flexible.core.resolveSheetSize
 import com.skydoves.flexible.core.screenHeight
 import com.skydoves.flexible.core.sheetPaddings
 import com.skydoves.flexible.core.toPx
@@ -175,22 +179,43 @@ public fun FlexibleBottomSheet(
     val isAnimationRunning = sheetState.swipeableState.isAnimationRunning
     val screenHeightSize = screenHeight()
     val screenHeightPxSize = screenHeightSize.toPx()
-    val fullyExpandedHeight: Dp = screenHeightSize * sheetState.flexibleSheetSize.fullyExpanded
+    val density = LocalDensity.current
+
+    // Track measured content height for wrap content mode
+    var contentHeightPx by remember { mutableStateOf(0f) }
+    val contentHeightDp = with(density) { contentHeightPx.toDp() }
 
     val flexibleSheetSize = sheetState.flexibleSheetSize
+
+    // Resolve sizes considering wrap content mode
+    val resolvedFullyExpanded = flexibleSheetSize.fullyExpanded
+      .resolveSheetSize(screenHeightPxSize, contentHeightPx)
+    val resolvedIntermediatelyExpanded = flexibleSheetSize.intermediatelyExpanded
+      .resolveSheetSize(screenHeightPxSize, contentHeightPx)
+    val resolvedSlightlyExpanded = flexibleSheetSize.slightlyExpanded
+      .resolveSheetSize(screenHeightPxSize, contentHeightPx)
+
+    val fullyExpandedHeight: Dp = screenHeightSize * resolvedFullyExpanded
+
     val expectedSheetSize: Dp = when (sheetState.targetValue) {
       FlexibleSheetValue.Hidden -> 1.dp
 
-      FlexibleSheetValue.FullyExpanded -> screenHeightSize * flexibleSheetSize.fullyExpanded
+      FlexibleSheetValue.FullyExpanded -> screenHeightSize * resolvedFullyExpanded
 
       FlexibleSheetValue.IntermediatelyExpanded ->
-        screenHeightSize * flexibleSheetSize.intermediatelyExpanded
+        screenHeightSize * resolvedIntermediatelyExpanded
 
-      FlexibleSheetValue.SlightlyExpanded -> screenHeightSize * flexibleSheetSize.slightlyExpanded
+      FlexibleSheetValue.SlightlyExpanded -> screenHeightSize * resolvedSlightlyExpanded
     }
 
     val sheetModifier = if (sheetState.isModal) {
-      Modifier.fillMaxSize()
+      // Use a height that changes with contentHeight to trigger anchor recalculation
+      // when wrap content is used. The tiny offset ensures layout size changes.
+      if (flexibleSheetSize.hasWrapContent) {
+        Modifier.fillMaxWidth().height(screenHeightSize + (contentHeightPx * 0.0001f).dp)
+      } else {
+        Modifier.fillMaxSize()
+      }
     } else {
       Modifier.height(
         if (isDragging || isAnimationRunning) {
@@ -201,18 +226,20 @@ public fun FlexibleBottomSheet(
       )
     }
 
+    // Hide sheet until content is measured when using wrap content mode
+    val isContentMeasured = contentHeightPx > 0f
+    val needsContentMeasurement = flexibleSheetSize.hasWrapContent && !isContentMeasured
+
     BoxWithConstraints(
       modifier = sheetModifier
         .align(Alignment.BottomCenter)
         .graphicsLayer {
-          alpha =
-            if (sheetState.targetValue ==
-              FlexibleSheetValue.Hidden && !isDragging && !isAnimationRunning
-            ) {
-              0f
-            } else {
-              1f
-            }
+          alpha = when {
+            needsContentMeasurement -> 0f
+            sheetState.targetValue == FlexibleSheetValue.Hidden &&
+              !isDragging && !isAnimationRunning -> 0f
+            else -> 1f
+          }
         },
     ) {
       val constraintHeight = constraints.maxHeight.toFloat()
@@ -274,6 +301,7 @@ public fun FlexibleBottomSheet(
             screenMaxHeight = screenHeightSize.toPx(),
             flexibleSheetSize = sheetState.flexibleSheetSize,
             isModal = sheetState.isModal,
+            contentHeight = contentHeightPx,
             onDragStarted = {
               isDragging = true
             },
@@ -286,81 +314,93 @@ public fun FlexibleBottomSheet(
         color = containerColor,
         contentColor = contentColor,
       ) {
-        Column(
-          modifier = if (sheetState.isModal) {
-            Modifier
-              .fillMaxWidth()
-              .sheetPaddings(sheetState)
-          } else {
-            Modifier
-              .fillMaxWidth()
-          },
+        // Wrap content in a Box that fills the Surface and aligns content to top.
+        // This ensures content stays at the top when sheet is partially expanded.
+        Box(
+          modifier = Modifier.fillMaxSize(),
+          contentAlignment = Alignment.TopCenter,
         ) {
-          if (dragHandle != null) {
-            val collapseActionLabel = "Collapse bottom sheet"
-            val dismissActionLabel = "Dismiss bottom sheet"
-            val expandActionLabel = "expand bottom sheet"
-            Box(
-              modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .semantics(mergeDescendants = true) {
-                  // Provides semantics to interact with the bottomsheet based on its
-                  // current value.
-                  with(sheetState) {
-                    dismiss(dismissActionLabel) {
-                      animateToDismiss()
-                      true
-                    }
-                    if (currentValue == FlexibleSheetValue.IntermediatelyExpanded) {
-                      expand(expandActionLabel) {
-                        if (swipeableState.confirmValueChange(
-                            FlexibleSheetValue.FullyExpanded,
-                          )
-                        ) {
-                          scope.launch { fullyExpand() }
-                        }
-                        true
-                      }
-                    } else if (currentValue == FlexibleSheetValue.SlightlyExpanded) {
-                      expand(expandActionLabel) {
-                        if (swipeableState.confirmValueChange(
-                            FlexibleSheetValue.IntermediatelyExpanded,
-                          )
-                        ) {
-                          scope.launch { intermediatelyExpand() }
-                        }
-                        true
-                      }
-                    } else if (hasIntermediatelyExpandedState) {
-                      collapse(collapseActionLabel) {
-                        if (
-                          swipeableState.confirmValueChange(
-                            FlexibleSheetValue.IntermediatelyExpanded,
-                          )
-                        ) {
-                          scope.launch { intermediatelyExpand() }
-                        }
-                        true
-                      }
-                    } else if (hasSlightlyExpandedState) {
-                      collapse(collapseActionLabel) {
-                        if (
-                          swipeableState.confirmValueChange(
-                            FlexibleSheetValue.SlightlyExpanded,
-                          )
-                        ) {
-                          scope.launch { slightlyExpand() }
-                        }
-                        true
-                      }
-                    }
-                  }
+          Column(
+            modifier = Modifier
+              .fillMaxWidth()
+              .removeMinHeightConstraint()
+              .onSizeChanged { size ->
+                contentHeightPx = size.height.toFloat()
+              }
+              .then(
+                if (sheetState.isModal) {
+                  Modifier.sheetPaddings(sheetState)
+                } else {
+                  Modifier
                 },
-            ) {
-              dragHandle()
+              ),
+          ) {
+            if (dragHandle != null) {
+              val collapseActionLabel = "Collapse bottom sheet"
+              val dismissActionLabel = "Dismiss bottom sheet"
+              val expandActionLabel = "expand bottom sheet"
+              Box(
+                modifier = Modifier
+                  .align(Alignment.CenterHorizontally)
+                  .semantics(mergeDescendants = true) {
+                    // Provides semantics to interact with the bottomsheet based on its
+                    // current value.
+                    with(sheetState) {
+                      dismiss(dismissActionLabel) {
+                        animateToDismiss()
+                        true
+                      }
+                      if (currentValue == FlexibleSheetValue.IntermediatelyExpanded) {
+                        expand(expandActionLabel) {
+                          if (swipeableState.confirmValueChange(
+                              FlexibleSheetValue.FullyExpanded,
+                            )
+                          ) {
+                            scope.launch { fullyExpand() }
+                          }
+                          true
+                        }
+                      } else if (currentValue == FlexibleSheetValue.SlightlyExpanded) {
+                        expand(expandActionLabel) {
+                          if (swipeableState.confirmValueChange(
+                              FlexibleSheetValue.IntermediatelyExpanded,
+                            )
+                          ) {
+                            scope.launch { intermediatelyExpand() }
+                          }
+                          true
+                        }
+                      } else if (hasIntermediatelyExpandedState) {
+                        collapse(collapseActionLabel) {
+                          if (
+                            swipeableState.confirmValueChange(
+                              FlexibleSheetValue.IntermediatelyExpanded,
+                            )
+                          ) {
+                            scope.launch { intermediatelyExpand() }
+                          }
+                          true
+                        }
+                      } else if (hasSlightlyExpandedState) {
+                        collapse(collapseActionLabel) {
+                          if (
+                            swipeableState.confirmValueChange(
+                              FlexibleSheetValue.SlightlyExpanded,
+                            )
+                          ) {
+                            scope.launch { slightlyExpand() }
+                          }
+                          true
+                        }
+                      }
+                    }
+                  },
+              ) {
+                dragHandle()
+              }
             }
+            content()
           }
-          content()
         }
       }
     }
