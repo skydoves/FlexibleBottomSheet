@@ -38,6 +38,9 @@ kotlin {
     browser()
     nodejs()
   }
+  wasmJs {
+    browser()
+  }
   @Suppress("OPT_IN_USAGE")
   applyHierarchyTemplate {
     common {
@@ -59,7 +62,10 @@ kotlin {
               withMacosArm64()
             }
           }
-          withJs()
+          group("web") {
+            withJs()
+            withWasmJs()
+          }
         }
       }
     }
