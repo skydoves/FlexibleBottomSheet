@@ -167,6 +167,24 @@ FlexibleBottomSheet(
 }
 ```
 
+### Initial Value
+
+You can specify the initial expanded state when the bottom sheet first appears by using the `initialValue` parameter. This allows you to start the sheet at a specific state (e.g., `FullyExpanded`, `IntermediatelyExpanded`, or `SlightlyExpanded`) without animation:
+
+```kotlin
+FlexibleBottomSheet(
+  onDismissRequest = onDismissRequest,
+  sheetState = rememberFlexibleBottomSheetState(
+    initialValue = FlexibleSheetValue.FullyExpanded,
+    skipSlightlyExpanded = false,
+  ),
+) {
+  ..
+}
+```
+
+> **Note**: The `initialValue` must be compatible with the skip settings. For example, if `skipSlightlyExpanded = true`, you cannot set `initialValue = FlexibleSheetValue.SlightlyExpanded`.
+
 ### Expanded Sizes
 
 **FlexibleBottomSheet** offers you to customize the expanded size the content size of bottom sheet based on its states. These constraints are calculated by multiplying the ratio with the maximum display height excluding the systembars (status and navigation bars). You can simply customize the expanded sheet size by setting `FlexibleSheetSize` to the `rememberFlexibleBottomSheetState` like the code below:
@@ -189,6 +207,32 @@ FlexibleBottomSheet(
 Fully (0.85) | Intermediately (0.45) | Slightly (0.15) |
 | :---------------: | :---------------: | :---------------: |
 | <img src="previews/preview5.png" align="center" width="320px" height ="480px"/> | <img src="previews/preview6.png" align="center" width="320px" height ="480px"/> | <img src="previews/preview7.png" align="center" width="320px" height ="480px"/> |
+
+### Wrap Content Size
+
+Instead of using fixed ratios, you can make the bottom sheet size itself based on its content height by using `FlexibleSheetSize.WrapContent`. This is useful when you want the sheet to automatically fit its content:
+
+```kotlin
+FlexibleBottomSheet(
+  onDismissRequest = onDismissRequest,
+  sheetState = rememberFlexibleBottomSheetState(
+    flexibleSheetSize = FlexibleSheetSize(
+      fullyExpanded = FlexibleSheetSize.WrapContent,
+      intermediatelyExpanded = 0.5f,
+      slightlyExpanded = 0.15f,
+    ),
+  )
+) {
+  // The sheet will wrap this content when fully expanded
+  Column {
+    Text("Item 1")
+    Text("Item 2")
+    Text("Item 3")
+  }
+}
+```
+
+You can use `WrapContent` for any of the expanded states. When the content is smaller than the screen, the sheet will size itself to fit the content. When the content is larger, it will be constrained to the screen height.
 
 ### Non-Modal BottomSheet
 
