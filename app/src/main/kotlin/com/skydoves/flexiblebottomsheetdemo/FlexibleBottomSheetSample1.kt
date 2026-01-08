@@ -48,7 +48,10 @@ fun FlexibleBottomSheetSample1(
   FlexibleBottomSheet(
     onDismissRequest = onDismissRequest,
     sheetState = rememberFlexibleBottomSheetState(
-      flexibleSheetSize = FlexibleSheetSize(),
+      flexibleSheetSize = FlexibleSheetSize(
+        fullyExpanded = 0.85f,
+        slightlyExpanded = FlexibleSheetSize.WrapContent,
+      ),
       isModal = true,
       skipSlightlyExpanded = false,
     ),
@@ -70,7 +73,7 @@ fun FlexibleBottomSheetSample1(
     Text(
       modifier = Modifier
         .fillMaxWidth()
-        .padding(8.dp),
+        .padding(top = 8.dp, bottom = 36.dp),
       text = "This is Flexible Bottom Sheet",
       textAlign = TextAlign.Center,
       color = Color.White,

@@ -32,6 +32,7 @@ public fun Modifier.flexibleBottomSheetSwipeable(
   sheetConstraintHeight: Float,
   screenMaxHeight: Float,
   isModal: Boolean,
+  contentHeight: Float = 0f,
   onDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit = {},
   onDragStopped: CoroutineScope.(velocity: Float) -> Unit,
 ): Modifier = draggable(
@@ -52,39 +53,46 @@ public fun Modifier.flexibleBottomSheetSwipeable(
       FlexibleSheetValue.FullyExpanded,
     ),
   ) { value, sheetSize ->
+    // Resolve sizes considering wrap content mode
+    val resolvedFullyExpanded = flexibleSheetSize.fullyExpanded
+      .resolveSheetSize(screenMaxHeight, contentHeight)
+    val resolvedIntermediatelyExpanded = flexibleSheetSize.intermediatelyExpanded
+      .resolveSheetSize(screenMaxHeight, contentHeight)
+    val resolvedSlightlyExpanded = flexibleSheetSize.slightlyExpanded
+      .resolveSheetSize(screenMaxHeight, contentHeight)
 
     if (isModal) {
       when (value) {
         FlexibleSheetValue.Hidden -> sheetConstraintHeight - 0f
 
         FlexibleSheetValue.FullyExpanded -> if (sheetSize.height != 0) {
-          max(0f, screenMaxHeight - screenMaxHeight * flexibleSheetSize.fullyExpanded)
+          max(0f, screenMaxHeight - screenMaxHeight * resolvedFullyExpanded)
         } else {
           null
         }
 
         FlexibleSheetValue.IntermediatelyExpanded -> when {
-          sheetSize.height < screenMaxHeight * flexibleSheetSize.intermediatelyExpanded -> null
+          sheetSize.height < screenMaxHeight * resolvedIntermediatelyExpanded -> null
           sheetState.skipIntermediatelyExpanded -> null
-          else -> screenMaxHeight - screenMaxHeight * flexibleSheetSize.intermediatelyExpanded
+          else -> screenMaxHeight - screenMaxHeight * resolvedIntermediatelyExpanded
         }
 
         FlexibleSheetValue.SlightlyExpanded -> when {
-          sheetSize.height < screenMaxHeight * flexibleSheetSize.slightlyExpanded -> null
+          sheetSize.height < screenMaxHeight * resolvedSlightlyExpanded -> null
           sheetState.skipSlightlyExpanded -> null
-          else -> screenMaxHeight - screenMaxHeight * flexibleSheetSize.slightlyExpanded
+          else -> screenMaxHeight - screenMaxHeight * resolvedSlightlyExpanded
         }
       }
     } else {
       val expectedSheetSize = when (value) {
         FlexibleSheetValue.Hidden -> 0f
 
-        FlexibleSheetValue.FullyExpanded -> screenMaxHeight * flexibleSheetSize.fullyExpanded
+        FlexibleSheetValue.FullyExpanded -> screenMaxHeight * resolvedFullyExpanded
 
         FlexibleSheetValue.IntermediatelyExpanded ->
-          screenMaxHeight * flexibleSheetSize.intermediatelyExpanded
+          screenMaxHeight * resolvedIntermediatelyExpanded
 
-        FlexibleSheetValue.SlightlyExpanded -> screenMaxHeight * flexibleSheetSize.slightlyExpanded
+        FlexibleSheetValue.SlightlyExpanded -> screenMaxHeight * resolvedSlightlyExpanded
       }.roundToInt()
 
       val expectedSize = when (value) {
