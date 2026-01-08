@@ -72,6 +72,13 @@ public class FlexibleSheetState(
           "skipIntermediatelyExpanded is set to true."
       }
     }
+    if (skipSlightlyExpanded) {
+      require(initialValue != FlexibleSheetValue.SlightlyExpanded) {
+        "The initial value must not be set to SlightlyExpanded if " +
+          "skipSlightlyExpanded is set to true. " +
+          "Set skipSlightlyExpanded = false to use this initial value."
+      }
+    }
   }
 
   /**
@@ -449,6 +456,9 @@ public fun consumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
  * @param skipSlightlyExpanded Whether the slightly expanded state, if the sheet is tall enough,
  * should be skipped. If true, the sheet will always expand to the [FlexibleSheetValue.IntermediatelyExpanded] or [FlexibleSheetValue.FullyExpanded] state and move to the
  * [FlexibleSheetValue.Hidden] state when hiding the sheet, either programmatically or by user interaction.
+ * @param initialValue The initial value of the sheet state. Defaults to [FlexibleSheetValue.Hidden].
+ * If set to a visible state (e.g., [FlexibleSheetValue.IntermediatelyExpanded]), the sheet will
+ * start in that state without animation.
  * @param containSystemBars Determines if the bottom sheet sizes should consider containing system bars (status + navigation).
  * @param allowNestedScroll Whether the bottom sheet should allow the content to implement nested scrolling.
  * @param isModal Determines if the bottom sheet should be modal. If set to true, the sheet will include a scrim overlaying the background and
@@ -461,6 +471,7 @@ public fun rememberFlexibleBottomSheetState(
   skipHiddenState: Boolean = false,
   skipIntermediatelyExpanded: Boolean = false,
   skipSlightlyExpanded: Boolean = true,
+  initialValue: FlexibleSheetValue = FlexibleSheetValue.Hidden,
   isModal: Boolean = false,
   containSystemBars: Boolean = true,
   allowNestedScroll: Boolean = true,
@@ -477,6 +488,7 @@ public fun rememberFlexibleBottomSheetState(
   skipHiddenState = skipHiddenState,
   skipIntermediatelyExpanded = skipIntermediatelyExpanded,
   skipSlightlyExpanded = skipSlightlyExpanded,
+  initialValue = initialValue,
   isModal = isModal,
   animateSpec = animateSpec,
   confirmValueChange = confirmValueChange,

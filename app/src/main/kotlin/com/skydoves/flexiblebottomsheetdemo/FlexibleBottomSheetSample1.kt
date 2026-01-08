@@ -48,6 +48,7 @@ fun FlexibleBottomSheetSample1(
   FlexibleBottomSheet(
     onDismissRequest = onDismissRequest,
     sheetState = rememberFlexibleBottomSheetState(
+      initialValue = FlexibleSheetValue.SlightlyExpanded,
       flexibleSheetSize = FlexibleSheetSize(
         fullyExpanded = 0.85f,
         slightlyExpanded = FlexibleSheetSize.WrapContent,
