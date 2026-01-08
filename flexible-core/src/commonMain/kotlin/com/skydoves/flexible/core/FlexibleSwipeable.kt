@@ -106,7 +106,7 @@ public fun Modifier.flexibleBottomSheetSwipeable(
 
         FlexibleSheetValue.IntermediatelyExpanded -> {
           when {
-            sheetSize.height < expectedSheetSize -> null
+            sheetFullHeight < expectedSheetSize -> null
             sheetState.skipIntermediatelyExpanded -> null
             else -> sheetFullHeight - expectedSheetSize
           }
@@ -114,7 +114,7 @@ public fun Modifier.flexibleBottomSheetSwipeable(
 
         FlexibleSheetValue.SlightlyExpanded -> {
           when {
-            sheetSize.height < expectedSheetSize -> null
+            sheetFullHeight < expectedSheetSize -> null
             sheetState.skipSlightlyExpanded -> null
             else -> sheetFullHeight - expectedSheetSize
           }
@@ -139,30 +139,39 @@ public fun flexibleBottomSheetAnchorChangeHandler(
       FlexibleSheetValue.SlightlyExpanded,
       FlexibleSheetValue.FullyExpanded,
       -> {
-        val hasIntermediatelyExpandedState =
-          newAnchors.containsKey(FlexibleSheetValue.IntermediatelyExpanded)
-        val hasSlightlyExpandedState = newAnchors.containsKey(FlexibleSheetValue.SlightlyExpanded)
-        val hasFullyExpandedState = newAnchors.containsKey(FlexibleSheetValue.FullyExpanded)
-        val newTarget = if (hasIntermediatelyExpandedState) {
-          FlexibleSheetValue.IntermediatelyExpanded
-        } else if (hasSlightlyExpandedState) {
-          FlexibleSheetValue.SlightlyExpanded
-        } else if (hasFullyExpandedState) {
-          FlexibleSheetValue.FullyExpanded
+        // If the previous target (initialValue) is available in new anchors, preserve it
+        if (newAnchors.containsKey(previousTarget)) {
+          previousTarget
         } else {
-          FlexibleSheetValue.Hidden
+          // Fallback to the best available state if previous target is not available
+          val hasIntermediatelyExpandedState =
+            newAnchors.containsKey(FlexibleSheetValue.IntermediatelyExpanded)
+          val hasSlightlyExpandedState = newAnchors.containsKey(FlexibleSheetValue.SlightlyExpanded)
+          val hasFullyExpandedState = newAnchors.containsKey(FlexibleSheetValue.FullyExpanded)
+          if (hasIntermediatelyExpandedState) {
+            FlexibleSheetValue.IntermediatelyExpanded
+          } else if (hasSlightlyExpandedState) {
+            FlexibleSheetValue.SlightlyExpanded
+          } else if (hasFullyExpandedState) {
+            FlexibleSheetValue.FullyExpanded
+          } else {
+            FlexibleSheetValue.Hidden
+          }
         }
-        newTarget
       }
     }
 
     val newTargetOffset = newAnchors.getValue(newTarget)
     if (newTargetOffset != previousTargetOffset) {
-      if (state.swipeableState.isAnimationRunning || previousAnchors.isEmpty()) {
+      if (state.swipeableState.isAnimationRunning) {
         // Re-target the animation to the new offset if it changed
         animateTo(newTarget, state.swipeableState.lastVelocity)
+      } else if (previousAnchors.isEmpty() && newTarget == FlexibleSheetValue.Hidden) {
+        // Initial anchor setup with Hidden state - use animateTo for non-modal sheet sizing
+        animateTo(newTarget, state.swipeableState.lastVelocity)
       } else {
-        // Snap to the new offset value of the target if no animation was running
+        // Snap to the new offset value without animation
+        // This applies when user sets a visible initialValue
         snapTo(newTarget)
       }
     }

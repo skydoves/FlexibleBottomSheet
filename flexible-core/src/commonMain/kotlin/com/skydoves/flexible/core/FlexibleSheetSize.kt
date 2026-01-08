@@ -67,9 +67,11 @@ public fun Float.isWrapContent(): Boolean = this == FlexibleSheetSize.WrapConten
 @InternalFlexibleApi
 public fun Float.resolveSheetSize(screenHeight: Float, contentHeight: Float): Float {
   return if (this.isWrapContent()) {
-    // If content height is not yet measured, use full screen as fallback
     if (contentHeight <= 0f) {
-      1.0f
+      // Use a small value as fallback when content is not yet measured.
+      // This ensures the anchor is created, and will be updated once content is measured.
+      // Using 0.01 (1% of screen) as a minimal placeholder.
+      0.01f
     } else {
       min(contentHeight, screenHeight) / screenHeight
     }

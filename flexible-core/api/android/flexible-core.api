@@ -68,7 +68,7 @@ public final class com/skydoves/flexible/core/FlexibleSheetState {
 }
 
 public final class com/skydoves/flexible/core/FlexibleSheetStateKt {
-	public static final fun rememberFlexibleBottomSheetState (ZZZZZZLandroidx/compose/animation/core/AnimationSpec;Lcom/skydoves/flexible/core/FlexibleSheetSize;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)Lcom/skydoves/flexible/core/FlexibleSheetState;
+	public static final fun rememberFlexibleBottomSheetState (ZZZLcom/skydoves/flexible/core/FlexibleSheetValue;ZZZLandroidx/compose/animation/core/AnimationSpec;Lcom/skydoves/flexible/core/FlexibleSheetSize;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)Lcom/skydoves/flexible/core/FlexibleSheetState;
 }
 
 public final class com/skydoves/flexible/core/FlexibleSheetValue : java/lang/Enum {
