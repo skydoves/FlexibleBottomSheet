@@ -1,0 +1,62 @@
+site_name: FlexibleBottomSheet
+site_description: 'Advanced Compose Multiplatform bottom sheet for segmented sizing, non-modal type, and allows interaction behind the bottom sheet similar to Google Maps.'
+site_author: 'Jaewoong (skydoves)'
+site_url: 'https://github.com/skydoves/FlexibleBottomSheet'
+edit_uri: 'tree/main/docs/'
+remote_branch: gh-pages
+
+docs_dir: docs
+
+# Navigation
+nav:
+  - 'Overview': index.md
+  - 'Getting Started': getting-started.md
+  - 'Sheet State': sheet-state.md
+  - 'Sheet Sizes': sheet-sizes.md
+  - 'Non-Modal Bottom Sheet': non-modal.md
+  - 'Customization': customization.md
+
+# Repository
+repo_name: 'FlexibleBottomSheet'
+repo_url: 'https://github.com/skydoves/FlexibleBottomSheet'
+
+# Configuration
+theme:
+  name: 'material'
+  language: 'en'
+  icon:
+    logo: material/page-layout-body
+
+  palette:
+    primary: 'indigo'
+    accent: 'indigo'
+    scheme: slate
+
+  font:
+    text: 'Roboto'
+    code: 'JetBrains Mono'
+
+  features:
+    - content.tabs.link
+    - content.code.copy
+    - content.code.annotate
+
+extra:
+  analytics:
+    provider: google
+    property: G-1SBY14Q79E
+
+# Extensions
+markdown_extensions:
+  - admonition
+  - attr_list
+  - codehilite:
+      guess_lang: false
+  - footnotes
+  - toc:
+      permalink: true
+  - pymdownx.betterem
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.details
