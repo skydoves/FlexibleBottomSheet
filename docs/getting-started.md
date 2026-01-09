@@ -87,8 +87,8 @@ FlexibleBottomSheet supports the following platforms:
 
 | Platform | Support |
 |----------|---------|
-| Android | :white_check_mark: |
-| iOS | :white_check_mark: |
-| Desktop (JVM) | :white_check_mark: |
-| Web (JavaScript) | :white_check_mark: |
-| Web (WASM) | :white_check_mark: |
+| Android | ✅ |
+| iOS | ✅ |
+| Desktop (JVM) | ✅ |
+| Web (JavaScript) | ✅ |
+| Web (WASM) | ✅ |
