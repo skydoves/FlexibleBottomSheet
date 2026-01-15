@@ -54,6 +54,7 @@ fun FlexibleBottomSheetSample1(
         slightlyExpanded = FlexibleSheetSize.WrapContent,
       ),
       isModal = true,
+      usePopup = false, // Render inline - drawer will appear above bottom sheet
       skipSlightlyExpanded = false,
     ),
     onTargetChanges = { sheetValue ->
