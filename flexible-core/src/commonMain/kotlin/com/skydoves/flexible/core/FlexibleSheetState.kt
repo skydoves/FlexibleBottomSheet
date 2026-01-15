@@ -51,6 +51,10 @@ import kotlin.jvm.JvmName
  * will be dismissed upon touching outside of the sheet. If set to false, the bottom sheet allows interaction with the screen, permitting actions outside of the sheet.
  * expand to the [FlexibleSheetValue.FullyExpanded] state and move to the [FlexibleSheetValue.IntermediatelyExpanded] if available, either
  * programmatically or by user interaction.
+ * @param usePopup Whether to render the bottom sheet in a popup window. If true (default), the sheet
+ * uses a separate window which appears above all content including navigation drawers. If false,
+ * the sheet renders inline within the composable hierarchy, allowing it to respect the z-order
+ * of other components like navigation drawers.
  */
 @Stable
 public class FlexibleSheetState(
@@ -61,6 +65,7 @@ public class FlexibleSheetState(
   public val containSystemBars: Boolean,
   public val allowNestedScroll: Boolean,
   public val isModal: Boolean,
+  public val usePopup: Boolean = true,
   public val animateSpec: AnimationSpec<Float>,
   initialValue: FlexibleSheetValue = FlexibleSheetValue.Hidden,
   confirmValueChange: (FlexibleSheetValue) -> Boolean = { true },
@@ -315,6 +320,7 @@ public class FlexibleSheetState(
       containSystemBars: Boolean,
       allowNestedScroll: Boolean,
       isModal: Boolean,
+      usePopup: Boolean = true,
       animateSpec: AnimationSpec<Float>,
       confirmValueChange: (FlexibleSheetValue) -> Boolean,
     ) = Saver<FlexibleSheetState, FlexibleSheetValue>(
@@ -325,6 +331,7 @@ public class FlexibleSheetState(
           skipIntermediatelyExpanded = skipIntermediatelyExpanded,
           skipSlightlyExpanded = skipSlightlyExpanded,
           isModal = isModal,
+          usePopup = usePopup,
           initialValue = savedValue,
           animateSpec = animateSpec,
           flexibleSheetSize = flexibleSheetSize,
@@ -473,6 +480,7 @@ public fun rememberFlexibleBottomSheetState(
   skipSlightlyExpanded: Boolean = true,
   initialValue: FlexibleSheetValue = FlexibleSheetValue.Hidden,
   isModal: Boolean = false,
+  usePopup: Boolean = true,
   containSystemBars: Boolean = true,
   allowNestedScroll: Boolean = true,
   animateSpec: AnimationSpec<Float> = SwipeableV2Defaults.AnimationSpec,
@@ -490,6 +498,7 @@ public fun rememberFlexibleBottomSheetState(
   skipSlightlyExpanded = skipSlightlyExpanded,
   initialValue = initialValue,
   isModal = isModal,
+  usePopup = usePopup,
   animateSpec = animateSpec,
   confirmValueChange = confirmValueChange,
   flexibleSheetSize = flexibleSheetSize,
@@ -503,6 +512,7 @@ private fun rememberFlexibleSheetState(
   skipIntermediatelyExpanded: Boolean = false,
   skipSlightlyExpanded: Boolean = false,
   isModal: Boolean = true,
+  usePopup: Boolean = true,
   confirmValueChange: (FlexibleSheetValue) -> Boolean = { true },
   animateSpec: AnimationSpec<Float> = SwipeableV2Defaults.AnimationSpec,
   initialValue: FlexibleSheetValue = FlexibleSheetValue.Hidden,
@@ -514,12 +524,14 @@ private fun rememberFlexibleSheetState(
     skipHiddenState,
     skipIntermediatelyExpanded,
     skipSlightlyExpanded,
+    usePopup,
     confirmValueChange,
     saver = FlexibleSheetState.Saver(
       skipHiddenState = skipHiddenState,
       skipIntermediatelyExpanded = skipIntermediatelyExpanded,
       skipSlightlyExpanded = skipSlightlyExpanded,
       isModal = isModal,
+      usePopup = usePopup,
       animateSpec = animateSpec,
       flexibleSheetSize = flexibleSheetSize,
       containSystemBars = containSystemBars,
@@ -532,6 +544,7 @@ private fun rememberFlexibleSheetState(
       skipIntermediatelyExpanded = skipIntermediatelyExpanded,
       skipSlightlyExpanded = skipSlightlyExpanded,
       isModal = isModal,
+      usePopup = usePopup,
       initialValue = initialValue,
       animateSpec = animateSpec,
       confirmValueChange = confirmValueChange,
