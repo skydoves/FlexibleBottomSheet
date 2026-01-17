@@ -16,10 +16,13 @@ public final class com/skydoves/flexiblebottomsheetdemo/ComposableSingletons$Fle
 public final class com/skydoves/flexiblebottomsheetdemo/ComposableSingletons$MainActivityKt {
 	public static final field INSTANCE Lcom/skydoves/flexiblebottomsheetdemo/ComposableSingletons$MainActivityKt;
 	public fun <init> ()V
-	public final fun getLambda$-1405033129$app_release ()Lkotlin/jvm/functions/Function3;
-	public final fun getLambda$-1785979185$app_release ()Lkotlin/jvm/functions/Function3;
+	public final fun getLambda$-1422763669$app_release ()Lkotlin/jvm/functions/Function3;
+	public final fun getLambda$-15734029$app_release ()Lkotlin/jvm/functions/Function3;
+	public final fun getLambda$1274917780$app_release ()Lkotlin/jvm/functions/Function3;
 	public final fun getLambda$2032147935$app_release ()Lkotlin/jvm/functions/Function2;
-	public final fun getLambda$417458574$app_release ()Lkotlin/jvm/functions/Function3;
+	public final fun getLambda$20907218$app_release ()Lkotlin/jvm/functions/Function2;
+	public final fun getLambda$2117507764$app_release ()Lkotlin/jvm/functions/Function2;
+	public final fun getLambda$439005230$app_release ()Lkotlin/jvm/functions/Function3;
 }
 
 public final class com/skydoves/flexiblebottomsheetdemo/FlexibleBottomSheetSample1Kt {
