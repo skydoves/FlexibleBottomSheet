@@ -26,18 +26,30 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Button
+import androidx.compose.material.DrawerValue
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.ModalDrawer
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
+import androidx.compose.material.TopAppBar
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.skydoves.flexiblebottomsheetdemo.ui.theme.FlexibleBottomSheetDemoTheme
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,64 +60,95 @@ class MainActivity : ComponentActivity() {
       var isShowingBottomSheet1 by remember { mutableStateOf(false) }
       var isShowingBottomSheet2 by remember { mutableStateOf(false) }
       var isShowingBottomSheet3 by remember { mutableStateOf(false) }
+      val drawerState = rememberDrawerState(DrawerValue.Closed)
+      val scope = rememberCoroutineScope()
 
       FlexibleBottomSheetDemoTheme {
-        Box(modifier = Modifier.fillMaxSize()) {
-          Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.CenterHorizontally,
-          ) {
-            TestButton(title = "Show a Toast 1")
-
-            Spacer(modifier = Modifier.height(30.dp))
-
-            Button(
-              onClick = {
-                isShowingBottomSheet1 = !isShowingBottomSheet1
-              },
+        ModalDrawer(
+          drawerState = drawerState,
+          drawerContent = {
+            Column(
+              modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
             ) {
-              Text(text = "Show Flexible Modal Sheet")
+              Spacer(modifier = Modifier.height(48.dp))
+              Text(text = "Drawer Content")
+              Spacer(modifier = Modifier.height(16.dp))
+              Text(text = "If the fix works, this drawer should appear ABOVE the bottom sheet")
             }
+          },
+        ) {
+          Scaffold(
+            topBar = {
+              TopAppBar(
+                title = { Text("FlexibleBottomSheet Demo") },
+                navigationIcon = {
+                  IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                    Icon(Icons.Default.Menu, contentDescription = "Menu")
+                  }
+                },
+              )
+            },
+          ) { paddingValues ->
+            Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
+              Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.CenterHorizontally,
+              ) {
+                TestButton(title = "Show a Toast 1")
 
-            Button(
-              onClick = {
-                isShowingBottomSheet2 = !isShowingBottomSheet2
-              },
-            ) {
-              Text(text = "Show Flexible Non Modal Sheet")
-            }
+                Spacer(modifier = Modifier.height(30.dp))
 
-            Button(
-              onClick = {
-                isShowingBottomSheet3 = !isShowingBottomSheet3
-              },
-            ) {
-              Text(text = "Show Dynamic Content Sheet")
-            }
+                Button(
+                  onClick = {
+                    isShowingBottomSheet1 = !isShowingBottomSheet1
+                  },
+                ) {
+                  Text(text = "Show Flexible Modal Sheet")
+                }
 
-            TestButton(title = "Show a Toast 3")
+                Button(
+                  onClick = {
+                    isShowingBottomSheet2 = !isShowingBottomSheet2
+                  },
+                ) {
+                  Text(text = "Show Flexible Non Modal Sheet")
+                }
 
-            TestButton(title = "Show a Toast 4")
+                Button(
+                  onClick = {
+                    isShowingBottomSheet3 = !isShowingBottomSheet3
+                  },
+                ) {
+                  Text(text = "Show Dynamic Content Sheet")
+                }
 
-            TestButton(title = "Show a Toast 5")
-          }
+                TestButton(title = "Show a Toast 3")
 
-          if (isShowingBottomSheet1) {
-            FlexibleBottomSheetSample1 {
-              isShowingBottomSheet1 = false
-            }
-          }
+                TestButton(title = "Show a Toast 4")
 
-          if (isShowingBottomSheet2) {
-            FlexibleBottomSheetSample2 {
-              isShowingBottomSheet2 = false
-            }
-          }
+                TestButton(title = "Show a Toast 5")
+              }
 
-          if (isShowingBottomSheet3) {
-            FlexibleBottomSheetSample3 {
-              isShowingBottomSheet3 = false
+              if (isShowingBottomSheet1) {
+                FlexibleBottomSheetSample1 {
+                  isShowingBottomSheet1 = false
+                }
+              }
+
+              if (isShowingBottomSheet2) {
+                FlexibleBottomSheetSample2 {
+                  isShowingBottomSheet2 = false
+                }
+              }
+
+              if (isShowingBottomSheet3) {
+                FlexibleBottomSheetSample3 {
+                  isShowingBottomSheet3 = false
+                }
+              }
             }
           }
         }

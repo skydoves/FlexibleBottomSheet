@@ -17,6 +17,7 @@ package com.skydoves.flexible.bottomsheet.material3
 
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -160,24 +161,7 @@ public fun FlexibleBottomSheet(
       ).size
   }
 
-  FlexibleBottomSheetPopup(
-    onDismissRequest = {
-      if (sheetState.currentValue == FlexibleSheetValue.FullyExpanded &&
-        sheetState.hasIntermediatelyExpandedState
-      ) {
-        scope.launch { sheetState.intermediatelyExpand() }
-      } else if (sheetState.currentValue == FlexibleSheetValue.IntermediatelyExpanded &&
-        sheetState.hasSlightlyExpandedState
-      ) {
-        scope.launch { sheetState.slightlyExpand() }
-      } else { // Is expanded without collapsed state or is collapsed.
-        scope.launch { sheetState.hide() }.invokeOnCompletion { onDismissRequest() }
-      }
-      onBackPressed.invoke()
-    },
-    sheetState = sheetState,
-    windowInsets = windowInsets,
-  ) {
+  val sheetContent: @Composable BoxScope.() -> Unit = {
     var isDragging by remember { mutableStateOf(false) }
     val isAnimationRunning = sheetState.swipeableState.isAnimationRunning
     val screenHeightSize = screenHeight()
@@ -409,6 +393,35 @@ public fun FlexibleBottomSheet(
       }
     }
   }
+
+  // Conditionally use popup or render inline based on sheetState.usePopup
+  if (sheetState.usePopup) {
+    FlexibleBottomSheetPopup(
+      onDismissRequest = {
+        if (sheetState.currentValue == FlexibleSheetValue.FullyExpanded &&
+          sheetState.hasIntermediatelyExpandedState
+        ) {
+          scope.launch { sheetState.intermediatelyExpand() }
+        } else if (sheetState.currentValue == FlexibleSheetValue.IntermediatelyExpanded &&
+          sheetState.hasSlightlyExpandedState
+        ) {
+          scope.launch { sheetState.slightlyExpand() }
+        } else { // Is expanded without collapsed state or is collapsed.
+          scope.launch { sheetState.hide() }.invokeOnCompletion { onDismissRequest() }
+        }
+        onBackPressed.invoke()
+      },
+      sheetState = sheetState,
+      windowInsets = windowInsets,
+      content = sheetContent,
+    )
+  } else {
+    // Render inline without popup - respects z-order of navigation drawers
+    Box(modifier = Modifier.fillMaxSize()) {
+      sheetContent()
+    }
+  }
+
   if (sheetState.hasFullyExpandedState) {
     LaunchedEffect(sheetState) {
       sheetState.show()

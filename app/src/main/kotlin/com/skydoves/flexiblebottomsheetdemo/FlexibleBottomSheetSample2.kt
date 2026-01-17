@@ -65,6 +65,7 @@ fun FlexibleBottomSheetSample2(
       slightlyExpanded = 0.18f,
     ),
     isModal = false,
+    usePopup = false, // Render inline - drawer will appear above bottom sheet
     skipSlightlyExpanded = false,
   )
 
