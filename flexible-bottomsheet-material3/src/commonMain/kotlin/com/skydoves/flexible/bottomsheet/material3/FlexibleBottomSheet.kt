@@ -220,13 +220,21 @@ public fun FlexibleBottomSheet(
         Modifier.fillMaxSize()
       }
     } else {
-      Modifier.height(
-        if (isDragging || isAnimationRunning) {
-          fullyExpandedHeight
-        } else {
-          expectedSheetSize
-        },
-      )
+      if (flexibleSheetSize.hasWrapContent && contentHeightPx <= 0f) {
+        // Content not yet measured: provide full screen height so the Column can expand
+        // to its natural size and report it via onSizeChanged. Without this, the tiny
+        // placeholder height (0.01 * screenHeight) constrains the Column and prevents
+        // content from ever being measured — causing a deadlock.
+        Modifier.fillMaxWidth().height(screenHeightSize)
+      } else {
+        Modifier.height(
+          if (isDragging || isAnimationRunning) {
+            fullyExpandedHeight
+          } else {
+            expectedSheetSize
+          },
+        )
+      }
     }
 
     // Hide sheet until content is measured when using wrap content mode
