@@ -74,8 +74,6 @@ dependencies {
   implementation(libs.landscapist.animation)
 
   implementation(libs.accompanist.systemuicontroller)
-
-  implementation(libs.orbital)
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {

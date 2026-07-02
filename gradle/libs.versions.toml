@@ -15,7 +15,6 @@ landscapist = "2.8.2"
 baselineProfiles = "1.4.1"
 uiAutomator = "2.3.0"
 spotless = "6.21.0"
-orbital = "0.4.0"
 androidxMacroBenchmark = "1.4.1"
 accompanist = "0.36.0"
 jetbrains-compose = "1.9.3"
@@ -53,8 +52,6 @@ landscapist-placeholder = { group = "com.github.skydoves", name = "landscapist-p
 landscapist-animation = { group = "com.github.skydoves", name = "landscapist-animation", version.ref = "landscapist" }
 
 accompanist-systemuicontroller = { group = "com.google.accompanist", name = "accompanist-systemuicontroller", version.ref = "accompanist" }
-
-orbital = { group = "com.github.skydoves", name = "orbital", version.ref = "orbital" }
 
 # unit test
 androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "androidxTest" }

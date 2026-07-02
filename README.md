@@ -208,6 +208,8 @@ Fully (0.85) | Intermediately (0.45) | Slightly (0.15) |
 | :---------------: | :---------------: | :---------------: |
 | <img src="previews/preview5.png" align="center" width="320px" height ="480px"/> | <img src="previews/preview6.png" align="center" width="320px" height ="480px"/> | <img src="previews/preview7.png" align="center" width="320px" height ="480px"/> |
 
+The `FlexibleSheetSize` is reactive: if you pass a new `FlexibleSheetSize` (for example, one derived from `remember { mutableStateOf(..) }`) to `rememberFlexibleBottomSheetState`, the sheet recomputes its anchors and resizes on the fly without being recreated, so you can adjust the expanded heights dynamically at runtime.
+
 ### Wrap Content Size
 
 Instead of using fixed ratios, you can make the bottom sheet size itself based on its content height by using `FlexibleSheetSize.WrapContent`. This is useful when you want the sheet to automatically fit its content:
@@ -297,10 +299,27 @@ FlexibleBottomSheet(
 }
 ```
 
-You can also implement dynamical content by utilizing with Compose animation library [Orbital](https://github.com/skydoves/Orbital).
+You can also implement shared-element style transitions between sheet states by combining `onTargetChanges` with Compose's built-in [`LookaheadScope`](https://developer.android.com/reference/kotlin/androidx/compose/ui/layout/LookaheadScope) and `Modifier.animateBounds`, as shown in `FlexibleBottomSheetSample3` in the demo app.
 
 <img src="previews/preview9.gif" width="320px" align="cemter">
 
+### Tracking Visibility Progress
+
+If you need the continuous position of the sheet rather than the discrete `FlexibleSheetValue` states, read `sheetState.visibilityProgress`. It returns a `Float` in the `0f..1f` range that updates as the sheet is dragged or animated: `0f` when the sheet is fully hidden and `1f` when it is fully expanded. It is backed by snapshot state, so reading it inside a composable recomposes as the sheet moves. This is handy for driving effects such as fading or translating content:
+
+```kotlin
+val sheetState = rememberFlexibleBottomSheetState()
+
+FlexibleBottomSheet(
+  onDismissRequest = onDismissRequest,
+  sheetState = sheetState,
+) {
+  Text(
+    text = "Revealing…",
+    modifier = Modifier.graphicsLayer { alpha = sheetState.visibilityProgress },
+  )
+}
+```
 
 ### Nested Scroll
 

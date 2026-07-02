@@ -96,3 +96,30 @@ public fun Modifier.removeMinHeightConstraint(): Modifier = this.layout { measur
     placeable.place(0, 0)
   }
 }
+
+/**
+ * A modifier used to measure wrap content height against a stable [maxHeightPx] (the screen height)
+ * instead of the incoming parent constraint.
+ *
+ * For non-modal wrap content sheets, the sheet container starts collapsed (the Hidden state has a
+ * tiny height), so measuring the content within the container would clamp it to that tiny height and
+ * it could never grow — the sheet stays almost hidden (issue #95). By measuring against the screen
+ * height, the reported content height is stable regardless of the current container size, breaking
+ * the chicken-and-egg dependency. The minimum constraint is also removed so the content can be
+ * smaller than the parent's minimum (mirrors [removeMinHeightConstraint]).
+ *
+ * @param maxHeightPx The maximum height (in pixels) the content may occupy, typically the screen
+ * height. Negative values are coerced to `0`.
+ */
+@InternalFlexibleApi
+public fun Modifier.wrapContentMeasureConstraint(maxHeightPx: Int): Modifier =
+  this.layout { measurable, constraints ->
+    val adjustedConstraints = constraints.copy(
+      minHeight = 0,
+      maxHeight = maxHeightPx.coerceAtLeast(0),
+    )
+    val placeable = measurable.measure(adjustedConstraints)
+    layout(placeable.width, placeable.height) {
+      placeable.place(0, 0)
+    }
+  }

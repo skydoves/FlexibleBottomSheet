@@ -68,6 +68,7 @@ import com.skydoves.flexible.core.resolveSheetSize
 import com.skydoves.flexible.core.screenHeight
 import com.skydoves.flexible.core.sheetPaddings
 import com.skydoves.flexible.core.toPx
+import com.skydoves.flexible.core.wrapContentMeasureConstraint
 import kotlinx.coroutines.launch
 
 /**
@@ -327,7 +328,16 @@ public fun FlexibleBottomSheet(
           Column(
             modifier = Modifier
               .fillMaxWidth()
-              .removeMinHeightConstraint()
+              .then(
+                // For wrap content, measure against the screen height so the reported content
+                // height is stable regardless of the (possibly collapsed) container height. This
+                // fixes non-modal wrap content sheets staying almost hidden (issue #95).
+                if (flexibleSheetSize.hasWrapContent) {
+                  Modifier.wrapContentMeasureConstraint(screenHeightPxSize.toInt())
+                } else {
+                  Modifier.removeMinHeightConstraint()
+                },
+              )
               .onSizeChanged { size ->
                 contentHeightPx = size.height.toFloat()
               }

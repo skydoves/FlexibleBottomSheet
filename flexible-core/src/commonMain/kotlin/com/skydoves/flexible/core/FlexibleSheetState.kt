@@ -18,6 +18,7 @@ package com.skydoves.flexible.core
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
@@ -57,7 +58,7 @@ public class FlexibleSheetState(
   public val skipHiddenState: Boolean,
   public val skipIntermediatelyExpanded: Boolean,
   public val skipSlightlyExpanded: Boolean,
-  public val flexibleSheetSize: FlexibleSheetSize,
+  flexibleSheetSize: FlexibleSheetSize,
   public val containSystemBars: Boolean,
   public val allowNestedScroll: Boolean,
   public val isModal: Boolean,
@@ -80,6 +81,24 @@ public class FlexibleSheetState(
       }
     }
   }
+
+  private val _flexibleSheetSize: MutableState<FlexibleSheetSize> =
+    mutableStateOf(flexibleSheetSize)
+
+  /**
+   * FlexibleSheetSize constraints the content size of the bottom sheet based on its states.
+   *
+   * This is backed by snapshot state: updating it (via the `flexibleSheetSize` parameter of
+   * [rememberFlexibleBottomSheetState]) recomputes the sheet anchors while the sheet is displayed,
+   * so the intermediately/slightly/fully expanded heights can be changed dynamically at runtime
+   * (feature request #93). The value is updated by the library when the composable parameter
+   * changes; read it to observe the current constraints.
+   */
+  public var flexibleSheetSize: FlexibleSheetSize
+    get() = _flexibleSheetSize.value
+    internal set(value) {
+      _flexibleSheetSize.value = value
+    }
 
   /**
    * The current value of the state.
@@ -105,6 +124,30 @@ public class FlexibleSheetState(
    */
   public val isVisible: Boolean
     get() = swipeableState.currentValue != FlexibleSheetValue.Hidden
+
+  /**
+   * The continuous visibility progress of the bottom sheet within the `0f..1f` range.
+   *
+   * - `0f` means the sheet is fully hidden (off the bottom of the screen).
+   * - `1f` means the sheet is at its most expanded position ([FlexibleSheetValue.FullyExpanded]).
+   *
+   * Unlike [targetValue], which only reports discrete [FlexibleSheetValue] states, this value updates
+   * continuously while the sheet is dragged or animated. It is derived from the current sheet offset
+   * and its anchors, so it is safe to read from composition and will trigger recomposition as the
+   * sheet moves. It is backed by snapshot state, so reading it inside a composable subscribes to
+   * updates automatically.
+   *
+   * This is useful to drive content that should react to how much of the sheet is revealed, such as
+   * fading, translating, or scaling elements as the sheet expands and collapses.
+   *
+   * Before the first layout pass (while the offset is not yet initialized) this returns `0f`.
+   */
+  /*@FloatRange(from = 0.0, to = 1.0)*/
+  public val visibilityProgress: Float
+    get() = calculateVisibilityProgress(
+      anchors = swipeableState.anchors,
+      offset = swipeableState.offsetOrNull,
+    )
 
   /**
    * Require the current offset (in pixels) of the bottom sheet.
@@ -362,6 +405,45 @@ public enum class FlexibleSheetValue {
   SlightlyExpanded,
 }
 
+/**
+ * Computes the continuous visibility progress (see [FlexibleSheetState.visibilityProgress]) from the
+ * given swipe [anchors] and the current [offset].
+ *
+ * Offsets increase downward (a larger offset means the sheet is pushed further off the bottom of the
+ * screen). The smallest anchor is therefore the most-expanded position and the largest anchor is the
+ * least-visible position. When explicit [FlexibleSheetValue.FullyExpanded] / [FlexibleSheetValue.Hidden]
+ * anchors are present they are used as the endpoints; otherwise the min/max anchors are used as a
+ * fallback so the progress still spans the full available range.
+ *
+ * @return `0f` at the least-visible endpoint, `1f` at the most-expanded endpoint, or `0f` when the
+ * offset/anchors are not yet initialized.
+ */
+internal fun calculateVisibilityProgress(
+  anchors: Map<FlexibleSheetValue, Float>,
+  offset: Float?,
+): Float {
+  if (offset == null || anchors.isEmpty()) return 0f
+
+  val expandedOffset = anchors[FlexibleSheetValue.FullyExpanded]
+    ?: anchors.values.minOrNull()
+    ?: return 0f
+  val hiddenOffset = anchors[FlexibleSheetValue.Hidden]
+    ?: anchors.values.maxOrNull()
+    ?: return 0f
+
+  val range = hiddenOffset - expandedOffset
+  if (range <= 0f) {
+    // Degenerate range (single anchor / all-equal offsets). This is reachable on the first layout
+    // pass, where the anchor set is frequently {Hidden}-only (FullyExpanded is null until the sheet
+    // is measured, and the intermediate/slightly states may be skipped). Only report fully-expanded
+    // when an expanded anchor actually exists; a lone Hidden anchor must report 0f to honor the
+    // "0f when hidden" contract, otherwise content bound to visibilityProgress flashes on open (#57).
+    return if (anchors.containsKey(FlexibleSheetValue.FullyExpanded)) 1f else 0f
+  }
+
+  return ((hiddenOffset - offset) / range).coerceIn(0f, 1f)
+}
+
 @InternalFlexibleApi
 public fun emptySwipeWithinBottomSheetBoundsNestedScrollConnection(): NestedScrollConnection =
   object : NestedScrollConnection {
@@ -510,7 +592,7 @@ private fun rememberFlexibleSheetState(
   containSystemBars: Boolean = true,
   allowNestedScroll: Boolean = true,
 ): FlexibleSheetState {
-  return rememberSaveable(
+  val state = rememberSaveable(
     skipHiddenState,
     skipIntermediatelyExpanded,
     skipSlightlyExpanded,
@@ -540,4 +622,12 @@ private fun rememberFlexibleSheetState(
       allowNestedScroll = allowNestedScroll,
     )
   }
+
+  // Keep the sheet size reactive: when the caller passes a new FlexibleSheetSize, update the state
+  // so the anchors recompute without recreating (and resetting) the sheet (feature request #93).
+  LaunchedEffect(flexibleSheetSize) {
+    state.flexibleSheetSize = flexibleSheetSize
+  }
+
+  return state
 }

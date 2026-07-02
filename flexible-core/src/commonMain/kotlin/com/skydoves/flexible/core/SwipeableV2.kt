@@ -260,6 +260,12 @@ public class SwipeableV2State<T>(
   }
 
   /**
+   * The current offset, or null if it has not been initialized yet. Unlike [requireOffset], this
+   * does not throw before the first layout pass, which makes it safe to read from composition.
+   */
+  internal val offsetOrNull: Float? get() = offset
+
+  /**
    * Whether an animation is currently in progress.
    */
   public val isAnimationRunning: Boolean get() = animationTarget != null
