@@ -231,6 +231,18 @@ public fun FlexibleBottomSheet(
     val isContentMeasured = contentHeightPx > 0f
     val needsContentMeasurement = flexibleSheetSize.hasWrapContent && !isContentMeasured
 
+    // The modal scrim must fill the entire popup window (edge-to-edge), independent of the sheet's
+    // container. It used to be drawn inside the sheet container, which for wrap-content sheets is
+    // only screenHeight() tall and bottom-aligned; under enableEdgeToEdge() screenHeight() excludes
+    // the system bars, so the scrim left a status-bar-sized gap at the top of the screen (#98/#15).
+    if (sheetState.isModal) {
+      Scrim(
+        color = scrimColor,
+        onDismissRequest = animateToDismiss,
+        visible = sheetState.targetValue != FlexibleSheetValue.Hidden,
+      )
+    }
+
     BoxWithConstraints(
       modifier = sheetModifier
         .align(Alignment.BottomCenter)
@@ -244,13 +256,6 @@ public fun FlexibleBottomSheet(
         },
     ) {
       val constraintHeight = constraints.maxHeight.toFloat()
-      if (sheetState.isModal) {
-        Scrim(
-          color = scrimColor,
-          onDismissRequest = animateToDismiss,
-          visible = sheetState.targetValue != FlexibleSheetValue.Hidden,
-        )
-      }
       val bottomSheetPaneTitle = "Bottom Sheet"
       Surface(
         modifier = modifier
