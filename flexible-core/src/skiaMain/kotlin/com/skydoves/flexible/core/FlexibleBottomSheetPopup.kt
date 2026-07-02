@@ -46,7 +46,12 @@ public actual fun FlexibleBottomSheetPopup(
     alignment = Alignment.BottomCenter,
     onDismissRequest = onDismissRequest,
     properties = PopupProperties(
-      focusable = false,
+      // Modal sheets must be focusable so that input components (e.g. TextField) inside the sheet
+      // can receive focus and show the software keyboard/IME. A non-focusable popup swallows IME
+      // requests, which is why the keyboard never appeared on iOS (issue #99).
+      // Non-modal sheets stay non-focusable so touches/interaction pass through to the content
+      // behind the sheet (Google Maps style).
+      focusable = sheetState.isModal,
       clippingEnabled = false,
       usePlatformInsets = false,
       dismissOnClickOutside = false,

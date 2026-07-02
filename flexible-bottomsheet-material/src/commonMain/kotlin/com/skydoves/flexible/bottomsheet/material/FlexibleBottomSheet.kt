@@ -67,6 +67,7 @@ import com.skydoves.flexible.core.resolveSheetSize
 import com.skydoves.flexible.core.screenHeight
 import com.skydoves.flexible.core.sheetPaddings
 import com.skydoves.flexible.core.toPx
+import com.skydoves.flexible.core.wrapContentMeasureConstraint
 import kotlinx.coroutines.launch
 
 /**
@@ -230,6 +231,18 @@ public fun FlexibleBottomSheet(
     val isContentMeasured = contentHeightPx > 0f
     val needsContentMeasurement = flexibleSheetSize.hasWrapContent && !isContentMeasured
 
+    // The modal scrim must fill the entire popup window (edge-to-edge), independent of the sheet's
+    // container. It used to be drawn inside the sheet container, which for wrap-content sheets is
+    // only screenHeight() tall and bottom-aligned; under enableEdgeToEdge() screenHeight() excludes
+    // the system bars, so the scrim left a status-bar-sized gap at the top of the screen (#98/#15).
+    if (sheetState.isModal) {
+      Scrim(
+        color = scrimColor,
+        onDismissRequest = animateToDismiss,
+        visible = sheetState.targetValue != FlexibleSheetValue.Hidden,
+      )
+    }
+
     BoxWithConstraints(
       modifier = sheetModifier
         .align(Alignment.BottomCenter)
@@ -243,13 +256,6 @@ public fun FlexibleBottomSheet(
         },
     ) {
       val constraintHeight = constraints.maxHeight.toFloat()
-      if (sheetState.isModal) {
-        Scrim(
-          color = scrimColor,
-          onDismissRequest = animateToDismiss,
-          visible = sheetState.targetValue != FlexibleSheetValue.Hidden,
-        )
-      }
       val bottomSheetPaneTitle = "Bottom Sheet"
       Surface(
         modifier = modifier
@@ -323,7 +329,16 @@ public fun FlexibleBottomSheet(
           Column(
             modifier = Modifier
               .fillMaxWidth()
-              .removeMinHeightConstraint()
+              .then(
+                // For wrap content, measure against the screen height so the reported content
+                // height is stable regardless of the (possibly collapsed) container height. This
+                // fixes non-modal wrap content sheets staying almost hidden (issue #95).
+                if (flexibleSheetSize.hasWrapContent) {
+                  Modifier.wrapContentMeasureConstraint(screenHeightPxSize.toInt())
+                } else {
+                  Modifier.removeMinHeightConstraint()
+                },
+              )
               .onSizeChanged { size ->
                 contentHeightPx = size.height.toFloat()
               }

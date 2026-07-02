@@ -15,6 +15,9 @@
  */
 package com.skydoves.flexiblebottomsheetdemo
 
+import androidx.compose.animation.BoundsTransform
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.animateBounds
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Column
@@ -26,16 +29,18 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -48,10 +53,11 @@ import com.skydoves.landscapist.ImageOptions
 import com.skydoves.landscapist.components.rememberImageComponent
 import com.skydoves.landscapist.crossfade.CrossfadePlugin
 import com.skydoves.landscapist.image.LandscapistImage
-import com.skydoves.orbital.Orbital
-import com.skydoves.orbital.animateBounds
-import com.skydoves.orbital.rememberMovableContentOf
 
+// Uses Compose's built-in LookaheadScope + animateBounds for the shared-element style transition.
+// The demo previously depended on the `orbital` library, whose `animateBounds` internally called the
+// now-removed `Modifier.intermediateLayout` API and crashed at runtime on modern Compose (issue #94).
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun FlexibleBottomSheetSample3(
   onDismissRequest: () -> Unit,
@@ -74,84 +80,86 @@ fun FlexibleBottomSheetSample3(
     },
     containerColor = Color.Black,
   ) {
-    Orbital(modifier = Modifier.fillMaxSize()) {
-      val sizeAnim = spring<IntSize>(stiffness = Spring.StiffnessLow)
-      val positionAnim = spring<IntOffset>(stiffness = Spring.StiffnessLow)
-      val image = rememberMovableContentOf {
-        LandscapistImage(
-          imageModel = { MockUtils.getMockPoster().poster },
-          component = rememberImageComponent {
-            +CrossfadePlugin()
-          },
-          modifier = Modifier
-            .padding(10.dp)
-            .animateBounds(
-              modifier = if (currentSheetTarget == FlexibleSheetValue.SlightlyExpanded) {
-                Modifier.size(80.dp)
-              } else {
-                Modifier
-                  .size(200.dp)
-                  .align(Alignment.CenterHorizontally)
-              },
-              sizeAnimationSpec = sizeAnim,
-              positionAnimationSpec = positionAnim,
-            )
-            .clip(RoundedCornerShape(12.dp)),
-          imageOptions = ImageOptions(requestSize = IntSize(200, 200)),
-        )
+    LookaheadScope {
+      val boundsTransform = remember {
+        BoundsTransform { _: Rect, _: Rect -> spring(stiffness = Spring.StiffnessLow) }
       }
 
-      val title = rememberMovableContentOf {
-        Column(
-          modifier = Modifier
-            .padding(10.dp)
-            .animateBounds(
-              modifier = Modifier,
-              sizeAnimationSpec = sizeAnim,
-              positionAnimationSpec = positionAnim,
-            ),
-        ) {
-          Text(
-            text = MockUtils.getMockPoster().name,
-            fontSize = if (currentSheetTarget == FlexibleSheetValue.SlightlyExpanded) {
-              18.sp
-            } else {
-              26.sp
+      val image = remember {
+        movableContentOf {
+          LandscapistImage(
+            imageModel = { MockUtils.getMockPoster().poster },
+            component = rememberImageComponent {
+              +CrossfadePlugin()
             },
-            color = Color.White,
-            fontWeight = FontWeight.Bold,
-          )
-
-          Text(
-            text = MockUtils.getMockPoster().description,
-            color = Color.LightGray,
-            fontSize = 12.sp,
-            maxLines = if (currentSheetTarget == FlexibleSheetValue.SlightlyExpanded) {
-              3
-            } else {
-              20
-            },
-            overflow = TextOverflow.Ellipsis,
-            fontWeight = FontWeight.Bold,
+            modifier = Modifier
+              .padding(10.dp)
+              .animateBounds(
+                lookaheadScope = this@LookaheadScope,
+                modifier = if (currentSheetTarget == FlexibleSheetValue.SlightlyExpanded) {
+                  Modifier.size(80.dp)
+                } else {
+                  Modifier.size(200.dp)
+                },
+                boundsTransform = boundsTransform,
+              )
+              .clip(RoundedCornerShape(12.dp)),
+            imageOptions = ImageOptions(requestSize = IntSize(200, 200)),
           )
         }
       }
 
-      Orbital(modifier = Modifier.fillMaxSize()) {
-        if (currentSheetTarget == FlexibleSheetValue.SlightlyExpanded) {
-          Row(
-            modifier = Modifier.fillMaxSize(),
-          ) {
-            image()
-            title()
-          }
-        } else {
+      val title = remember {
+        movableContentOf {
           Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+              .padding(10.dp)
+              .animateBounds(
+                lookaheadScope = this@LookaheadScope,
+                boundsTransform = boundsTransform,
+              ),
           ) {
-            image()
-            title()
+            Text(
+              text = MockUtils.getMockPoster().name,
+              fontSize = if (currentSheetTarget == FlexibleSheetValue.SlightlyExpanded) {
+                18.sp
+              } else {
+                26.sp
+              },
+              color = Color.White,
+              fontWeight = FontWeight.Bold,
+            )
+
+            Text(
+              text = MockUtils.getMockPoster().description,
+              color = Color.LightGray,
+              fontSize = 12.sp,
+              maxLines = if (currentSheetTarget == FlexibleSheetValue.SlightlyExpanded) {
+                3
+              } else {
+                20
+              },
+              overflow = TextOverflow.Ellipsis,
+              fontWeight = FontWeight.Bold,
+            )
           }
+        }
+      }
+
+      if (currentSheetTarget == FlexibleSheetValue.SlightlyExpanded) {
+        Row(
+          modifier = Modifier.fillMaxSize(),
+        ) {
+          image()
+          title()
+        }
+      } else {
+        Column(
+          modifier = Modifier.fillMaxSize(),
+          horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+          image()
+          title()
         }
       }
     }

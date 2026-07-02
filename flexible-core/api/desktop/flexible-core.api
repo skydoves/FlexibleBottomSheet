@@ -46,6 +46,7 @@ public final class com/skydoves/flexible/core/FlexibleSheetState {
 	public final fun getSkipSlightlyExpanded ()Z
 	public final fun getSwipeableState ()Lcom/skydoves/flexible/core/SwipeableV2State;
 	public final fun getTargetValue ()Lcom/skydoves/flexible/core/FlexibleSheetValue;
+	public final fun getVisibilityProgress ()F
 	public final fun hide (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun intermediatelyExpand (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun isAnimatingContent ()Landroidx/compose/runtime/State;

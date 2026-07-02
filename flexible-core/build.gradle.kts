@@ -99,6 +99,20 @@ kotlin {
         implementation(libs.androidx.activity.compose)
       }
     }
+
+    val commonTest by getting {
+      dependencies {
+        implementation(kotlin("test"))
+      }
+    }
+
+    val desktopTest by getting {
+      dependencies {
+        implementation(compose.desktop.currentOs)
+        @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
+        implementation(compose.uiTest)
+      }
+    }
   }
 
   explicitApi()
@@ -144,14 +158,16 @@ dependencies {
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+  val isTestTask = name.contains("Test", ignoreCase = true)
   compilerOptions {
     jvmTarget.set(JvmTarget.JVM_11)
     freeCompilerArgs.addAll(
-      listOf(
-        "-Xexplicit-api=strict",
-        "-Xopt-in=androidx.compose.material3.ExperimentalMaterial3Api",
-        "-Xopt-in=com.skydoves.flexible.core.InternalFlexibleApi",
-      )
+      buildList {
+        // Explicit API mode should only apply to production sources, not tests.
+        if (!isTestTask) add("-Xexplicit-api=strict")
+        add("-Xopt-in=androidx.compose.material3.ExperimentalMaterial3Api")
+        add("-Xopt-in=com.skydoves.flexible.core.InternalFlexibleApi")
+      }
     )
   }
 }
