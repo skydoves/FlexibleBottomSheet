@@ -14,6 +14,7 @@ nav:
   - 'Sheet State': sheet-state.md
   - 'Sheet Sizes': sheet-sizes.md
   - 'Non-Modal Bottom Sheet': non-modal.md
+  - 'Sheet Host': sheet-host.md
   - 'Customization': customization.md
 
 # Repository

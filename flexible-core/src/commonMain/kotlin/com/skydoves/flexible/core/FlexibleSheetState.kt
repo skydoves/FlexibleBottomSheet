@@ -52,6 +52,9 @@ import kotlin.jvm.JvmName
  * will be dismissed upon touching outside of the sheet. If set to false, the bottom sheet allows interaction with the screen, permitting actions outside of the sheet.
  * expand to the [FlexibleSheetValue.FullyExpanded] state and move to the [FlexibleSheetValue.IntermediatelyExpanded] if available, either
  * programmatically or by user interaction.
+ * @param sheetHost Determines where the sheet is rendered: in a platform window of its own
+ * ([FlexibleSheetHost.Window], the default) or inside the composition that declared it
+ * ([FlexibleSheetHost.Inline]).
  */
 @Stable
 public class FlexibleSheetState(
@@ -65,6 +68,7 @@ public class FlexibleSheetState(
   public val animateSpec: AnimationSpec<Float>,
   initialValue: FlexibleSheetValue = FlexibleSheetValue.Hidden,
   confirmValueChange: (FlexibleSheetValue) -> Boolean = { true },
+  public val sheetHost: FlexibleSheetHost = FlexibleSheetHost.Window,
 ) {
   init {
     if (skipIntermediatelyExpanded) {
@@ -359,6 +363,7 @@ public class FlexibleSheetState(
       allowNestedScroll: Boolean,
       isModal: Boolean,
       animateSpec: AnimationSpec<Float>,
+      sheetHost: FlexibleSheetHost,
       confirmValueChange: (FlexibleSheetValue) -> Boolean,
     ) = Saver<FlexibleSheetState, FlexibleSheetValue>(
       save = { it.currentValue },
@@ -374,6 +379,7 @@ public class FlexibleSheetState(
           containSystemBars = containSystemBars,
           allowNestedScroll = allowNestedScroll,
           confirmValueChange = confirmValueChange,
+          sheetHost = sheetHost,
         )
       },
     )
@@ -635,6 +641,10 @@ public fun consumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
  * @param isModal Determines if the bottom sheet should be modal. If set to true, the sheet will include a scrim overlaying the background and
  * will be dismissed upon touching outside of the sheet. If set to false, the bottom sheet allows interaction with the screen, permitting actions outside of the sheet.
  * @param flexibleSheetSize FlexibleSheetSize constraints the content size of [FlexibleBottomSheet] based on its states.
+ * @param sheetHost Determines where the sheet is rendered. [FlexibleSheetHost.Window] draws it in a
+ * platform window above all app content, which is the default. [FlexibleSheetHost.Inline] draws it
+ * inside the composition that declared it, so it layers by composition order, stays within its
+ * parent's bounds, and shares the host window's text selection and popup coordinate space.
  * @param confirmValueChange Optional callback invoked to confirm or veto a pending state change.
  */
 @Composable
@@ -648,6 +658,7 @@ public fun rememberFlexibleBottomSheetState(
   allowNestedScroll: Boolean = true,
   animateSpec: AnimationSpec<Float> = SwipeableV2Defaults.AnimationSpec,
   flexibleSheetSize: FlexibleSheetSize = FlexibleSheetSize(),
+  sheetHost: FlexibleSheetHost = FlexibleSheetHost.Window,
   confirmValueChange: (FlexibleSheetValue) -> Boolean = {
     if (skipHiddenState) {
       it != FlexibleSheetValue.Hidden
@@ -666,6 +677,7 @@ public fun rememberFlexibleBottomSheetState(
   flexibleSheetSize = flexibleSheetSize,
   containSystemBars = containSystemBars,
   allowNestedScroll = allowNestedScroll,
+  sheetHost = sheetHost,
 )
 
 @Composable
@@ -680,6 +692,7 @@ private fun rememberFlexibleSheetState(
   flexibleSheetSize: FlexibleSheetSize = FlexibleSheetSize(),
   containSystemBars: Boolean = true,
   allowNestedScroll: Boolean = true,
+  sheetHost: FlexibleSheetHost = FlexibleSheetHost.Window,
 ): FlexibleSheetState {
   val state = rememberSaveable(
     skipHiddenState,
@@ -696,6 +709,7 @@ private fun rememberFlexibleSheetState(
       containSystemBars = containSystemBars,
       allowNestedScroll = allowNestedScroll,
       confirmValueChange = confirmValueChange,
+      sheetHost = sheetHost,
     ),
   ) {
     FlexibleSheetState(
@@ -709,6 +723,7 @@ private fun rememberFlexibleSheetState(
       flexibleSheetSize = flexibleSheetSize,
       containSystemBars = containSystemBars,
       allowNestedScroll = allowNestedScroll,
+      sheetHost = sheetHost,
     )
   }
 

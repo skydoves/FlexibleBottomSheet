@@ -33,9 +33,16 @@ import androidx.compose.ui.composed
  * In such cases, you may need to add calculated paddings when using fully served content inside the bottom sheet.
  *
  * Note: When [FlexibleSheetState.containSystemBars] is true, system bar padding is not applied,
- * allowing the sheet to extend edge-to-edge (useful with enableEdgeToEdge()).
+ * allowing the sheet to extend edge-to-edge (useful with enableEdgeToEdge()). Inline sheets are
+ * never padded here, because their host layout already owns the insets.
  */
 public fun Modifier.sheetPaddings(sheetState: FlexibleSheetState): Modifier = composed {
+  // An inline sheet is laid out inside the host's own layout, which has already accounted for the
+  // window insets, so applying them again here would pad the sheet twice.
+  if (sheetState.sheetHost == FlexibleSheetHost.Inline) {
+    return@composed this
+  }
+
   // When containSystemBars is true, the sheet should extend edge-to-edge without system bar padding.
   // This is useful when using enableEdgeToEdge() or WindowCompat.setDecorFitsSystemWindows(window, false).
   if (sheetState.containSystemBars) {
@@ -45,7 +52,8 @@ public fun Modifier.sheetPaddings(sheetState: FlexibleSheetState): Modifier = co
   val systemBarsPadding = WindowInsets.systemBars.asPaddingValues()
   val paddings =
     systemBarsPadding.calculateBottomPadding() + systemBarsPadding.calculateTopPadding()
-  val availableHeight = screenHeight() * (1 - sheetState.flexibleSheetSize.fullyExpanded)
+  val availableHeight =
+    sheetMaxHeight(sheetState) * (1 - sheetState.flexibleSheetSize.fullyExpanded)
   val padding = availableHeight - paddings
 
   if (sheetState.currentValue == FlexibleSheetValue.FullyExpanded && padding.toPx() > 0) {
