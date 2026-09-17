@@ -70,6 +70,7 @@ public actual fun FlexibleBottomSheetPopup(
   onDismissRequest: () -> Unit,
   windowInsets: WindowInsets,
   sheetState: FlexibleSheetState,
+  handlesBackGesture: Boolean,
   content: @Composable BoxScope.() -> Unit,
 ) {
   val view = LocalView.current
@@ -91,13 +92,14 @@ public actual fun FlexibleBottomSheetPopup(
       setCustomContent(
         parent = parentComposition,
         content = {
-          // This BackHandler is registered on the *host activity's* dispatcher, so it must be
-          // disabled while the sheet rests hidden. Otherwise a dismissed sheet keeps intercepting
-          // the activity's back press and back silently does nothing.
-          if (!sheetState.skipHiddenState) {
-            BackHandler(enabled = sheetState.currentValue != FlexibleSheetValue.Hidden) {
-              onDismissRequest()
-            }
+          // Registered on the host activity's dispatcher, for presses that arrive while the
+          // activity holds focus rather than this panel. Disabled whenever the sheet would not act,
+          // otherwise a hidden sheet keeps intercepting the activity's back press.
+          BackHandler(
+            enabled = handlesBackGesture &&
+              sheetState.currentValue != FlexibleSheetValue.Hidden,
+          ) {
+            onDismissRequest()
           }
           Box(
             Modifier
@@ -118,14 +120,10 @@ public actual fun FlexibleBottomSheetPopup(
     }
   }
 
-  // A fully hidden sheet is still composed, and its window still covers the screen and still holds
-  // input focus, so without this a dismissed sheet keeps swallowing the touches, key events and IME
-  // requests meant for the content behind it (#15). The window stays interactive for the whole hide
-  // animation and only steps aside once the sheet has come to rest in the hidden state.
-  //
-  // This runs in a SideEffect rather than a LaunchedEffect on purpose: a LaunchedEffect body is
-  // dispatched and would apply the flags a frame late, leaving the first frame of a re-opening sheet
-  // untouchable. SideEffect runs synchronously while changes are applied, after `show()`.
+  // A hidden sheet is still composed and its window still owns the screen and the input focus, so
+  // without this it keeps swallowing touches, key events and IME requests meant for the content
+  // behind it (#15). SideEffect rather than LaunchedEffect: the latter is dispatched and would
+  // apply the flags a frame late, leaving a re-opening sheet untouchable on its first frame.
   val isSheetInteractive = sheetState.targetValue != FlexibleSheetValue.Hidden ||
     sheetState.currentValue != FlexibleSheetValue.Hidden
 
@@ -133,6 +131,7 @@ public actual fun FlexibleBottomSheetPopup(
     flexibleBottomSheetWindow.updateParentComposition(parentComposition)
     flexibleBottomSheetWindow.updateDismissRequest(onDismissRequest)
     flexibleBottomSheetWindow.setSheetInteractive(isSheetInteractive)
+    flexibleBottomSheetWindow.setBackGestureHandled(handlesBackGesture)
   }
 
   DisposableEffect(flexibleBottomSheetWindow) {
@@ -178,6 +177,7 @@ private class FlexibleBottomSheetWindow(
   private var onBackInvokedDispatcher: OnBackInvokedDispatcher? = null
   private var isSheetInteractive: Boolean = true
   private var isAddedToWindowManager: Boolean = false
+  private var handlesBackGesture: Boolean = true
 
   override var shouldCreateCompositionOnAttachedToWindow: Boolean = false
     private set
@@ -213,18 +213,17 @@ private class FlexibleBottomSheetWindow(
   /**
    * Toggles whether this window takes part in input at all.
    *
-   * Touches that land inside a window are consumed by that window even when no view handles them,
-   * and a focused window receives the key events and IME requests of the whole app, so hiding the
-   * sheet visually is not enough to hand input back to the content behind it.
+   * A window consumes every touch inside its bounds even when no view handles it, and a focused
+   * window receives the app's key events and IME requests, so hiding the sheet visually is not
+   * enough to hand input back to the content behind it.
    */
   fun setSheetInteractive(interactive: Boolean) {
     if (isSheetInteractive == interactive) return
     isSheetInteractive = interactive
 
-    // Before [show] the flag is simply picked up by the params [show] builds, so there is nothing to
-    // update yet. `isAttachedToWindow` must not be used as the guard here: the view is only attached
-    // on the first traversal after `addView`, which can land after this runs, and skipping the
-    // update then would leave the window flags permanently out of sync with the sheet.
+    // Before [show] the params it builds pick the flag up anyway. Not `isAttachedToWindow`: the
+    // view only attaches on the first traversal after `addView`, which can land after this runs,
+    // and skipping the update then desyncs the flags permanently.
     if (!isAddedToWindowManager) return
 
     windowManager.updateViewLayout(this, getWindowParams())
@@ -238,12 +237,24 @@ private class FlexibleBottomSheetWindow(
     isAddedToWindowManager = true
     requestFocus()
 
-    // On API 33+ the platform routes back through OnBackInvokedDispatcher and never delivers
-    // KEYCODE_BACK to the view tree, but only for apps that opted into predictive back. For apps
-    // that did not, this registration is rejected (logged, not thrown) and the platform re-injects
-    // KEYCODE_BACK into this window instead, where [dispatchKeyEvent] picks it up. Exactly one of
-    // the two paths is ever live, so they cannot both fire for a single press.
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+    syncOnBackInvokedCallback()
+  }
+
+  /**
+   * Registers or unregisters the predictive back callback to match [handlesBackGesture].
+   *
+   * An [OnBackInvokedCallback] consumes the gesture unconditionally and cannot decline it, so
+   * "should the sheet handle back" is expressed by whether it is registered at all, mirroring
+   * `BackHandler(enabled = ...)`.
+   *
+   * On API 33+ predictive back never delivers KEYCODE_BACK to the view tree, but only for apps that
+   * opted in. For apps that did not, this registration is rejected and the platform re-injects the
+   * key here instead, where [dispatchKeyEvent] takes it. Only ever one of the two is live.
+   */
+  private fun syncOnBackInvokedCallback() {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
+
+    if (handlesBackGesture && onBackInvokedCallback == null) {
       val callback = OnBackInvokedCallback { onDismissRequest() }
       val dispatcher = findOnBackInvokedDispatcher()
       dispatcher?.registerOnBackInvokedCallback(
@@ -252,7 +263,24 @@ private class FlexibleBottomSheetWindow(
       )
       onBackInvokedCallback = callback
       onBackInvokedDispatcher = dispatcher
+    } else if (!handlesBackGesture) {
+      onBackInvokedCallback?.let { callback ->
+        onBackInvokedDispatcher?.unregisterOnBackInvokedCallback(callback)
+      }
+      onBackInvokedCallback = null
+      onBackInvokedDispatcher = null
     }
+  }
+
+  /**
+   * Declares whether a back gesture would currently change the sheet at all.
+   */
+  fun setBackGestureHandled(handled: Boolean) {
+    if (handlesBackGesture == handled) return
+    handlesBackGesture = handled
+    if (!isAddedToWindowManager) return
+
+    syncOnBackInvokedCallback()
   }
 
   fun dismiss() {
@@ -296,11 +324,10 @@ private class FlexibleBottomSheetWindow(
       // Remove default Window animations
       windowAnimations = 0x00000040
 
-      // A window added through WindowManager starts at SOFT_INPUT_ADJUST_UNSPECIFIED, and a theme's
-      // windowSoftInputMode only ever reaches the activity's own window. Without ADJUST_RESIZE the
-      // platform leaves the IME out of this window's compat and visible insets, which is what made
-      // Modifier.imePadding() measure zero and let the keyboard cover the sheet content (#16).
-      // STATE_UNCHANGED keeps the sheet from toggling the keyboard as it is added or relaid out.
+      // A WindowManager-added window starts at SOFT_INPUT_ADJUST_UNSPECIFIED, and a theme's
+      // windowSoftInputMode only reaches the activity's own window. Without ADJUST_RESIZE the IME
+      // is left out of this window's insets, which is why imePadding() measured zero (#16).
+      // STATE_UNCHANGED stops the sheet toggling the keyboard as it is added or relaid out.
       softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE or
         WindowManager.LayoutParams.SOFT_INPUT_STATE_UNCHANGED
 
@@ -342,17 +369,14 @@ private class FlexibleBottomSheetWindow(
 
   /**
    * Dismisses the sheet on the back key, for the platforms and apps that still deliver it to the
-   * view tree.
+   * view tree (API 32 and below, and API 33+ for apps that did not opt into predictive back).
    *
-   * This used to return `true` for every back event, including a **canceled** `ACTION_UP`, while
-   * only acting on a non canceled one. Window focus moves between this panel and the host activity
-   * on any touch outside a non modal sheet, and every such transfer cancels the in flight key
-   * event, so that branch silently ate the press and stopped it from reaching the activity: on the
-   * first screen of the back stack, where nothing else would have handled it either, back simply
-   * did nothing (#92). A press that is not acted on is now forwarded instead of swallowed.
+   * The sheet claims the key only when it would act on it. A press it cannot act on, and a canceled
+   * press, go to `super` rather than being reported as consumed. No other window would pick those
+   * up, but key input inside the sheet content can still observe them.
    */
   override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-    if (event.keyCode != KeyEvent.KEYCODE_BACK) {
+    if (event.keyCode != KeyEvent.KEYCODE_BACK || !handlesBackGesture) {
       return super.dispatchKeyEvent(event)
     }
     if (event.action == KeyEvent.ACTION_UP && !event.isCanceled) {
@@ -372,13 +396,9 @@ private class FlexibleBottomSheetWindow(
 
   private companion object {
     /**
-     * `WindowManager.LayoutParams.privateFlags` and `PRIVATE_FLAG_NO_MOVE_ANIMATION` are hidden
-     * platform API used to suppress the window move animation.
-     *
-     * They are resolved once for the process instead of on every window layout pass: the window
-     * params are now rebuilt whenever the sheet's interactivity changes, and a build that
-     * blocklists these members must degrade to "the window animates" rather than throw on every
-     * update.
+     * Hidden platform API used to suppress the window move animation, resolved once per process
+     * rather than on every window layout pass. A build that blocklists these members degrades to
+     * "the window animates" instead of throwing on every update.
      */
     val noMoveAnimation: Pair<Field, Int>? = runCatching {
       val layoutParamsClass = Class.forName("android.view.WindowManager\$LayoutParams")

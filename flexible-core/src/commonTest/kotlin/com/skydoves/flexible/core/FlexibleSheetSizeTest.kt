@@ -76,4 +76,28 @@ class FlexibleSheetSizeTest {
     )
     assertEquals(0.01f, resolved)
   }
+
+  @Test
+  fun `wrap content never resolves to NaN when there is no room to measure against`() {
+    // A zero screen height is reachable once the sizing basis subtracts the keyboard, and a NaN
+    // ratio silently poisons the anchors, the visibility progress and the scrim alpha.
+    val resolved = FlexibleSheetSize.WrapContent.resolveSheetSize(
+      screenHeight = 0f,
+      contentHeight = 500f,
+    )
+
+    assertFalse(resolved.isNaN(), "resolveSheetSize returned NaN")
+    assertEquals(0.01f, resolved)
+  }
+
+  @Test
+  fun `wrap content never resolves to NaN when neither height is known`() {
+    val resolved = FlexibleSheetSize.WrapContent.resolveSheetSize(
+      screenHeight = 0f,
+      contentHeight = 0f,
+    )
+
+    assertFalse(resolved.isNaN(), "resolveSheetSize returned NaN")
+    assertEquals(0.01f, resolved)
+  }
 }

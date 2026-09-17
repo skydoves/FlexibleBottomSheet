@@ -120,8 +120,9 @@ class SheetBackPressTest {
       sheetState.currentValue == FlexibleSheetValue.FullyExpanded
     }
 
-    // Exactly one state per back press: overlapping back handlers used to fire twice and skip a
-    // state, or not fire at all.
+    // Exactly one state per back press. Forward guard rather than a reproduction: the panel window
+    // and the activity window each hold at most one back handler and only one of them has focus, so
+    // a single press has never been able to fire both.
     device.pressBack()
     composeTestRule.waitUntil(TIMEOUT_MILLIS) {
       sheetState.currentValue == FlexibleSheetValue.IntermediatelyExpanded

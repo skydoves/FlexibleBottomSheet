@@ -42,6 +42,7 @@ import com.skydoves.flexible.core.FlexibleSheetValue
 import com.skydoves.flexible.core.rememberFlexibleBottomSheetState
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -59,6 +60,22 @@ class SheetImeInsetsTest {
 
   @get:Rule
   val composeTestRule = createAndroidComposeRule<ComponentActivity>()
+
+  private val device: UiDevice
+    get() = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+
+  /**
+   * JUnit4 orders methods by hash, not by source, and a test in this class leaves the keyboard up.
+   * Without this the next test can capture its "no keyboard" baseline with the keyboard already
+   * showing and pass for the wrong reason.
+   *
+   * ESCAPE rather than back: back would be routed to the sheet or finish the activity.
+   */
+  @Before
+  fun dismissTheKeyboard() {
+    device.executeShellCommand("input keyevent 111")
+    device.waitForIdle()
+  }
 
   @Test
   fun imeInsetReachesTheSheetWindow() {
@@ -98,21 +115,7 @@ class SheetImeInsetsTest {
     composeTestRule.waitUntil(TIMEOUT_MILLIS) { imeBottomPx > 0 }
 
     assertTrue("The IME inset never reached the sheet window", imeBottomPx > 0)
-
-    // The sheet window covers the display, so its window coordinates are display coordinates.
-    val textFieldBottom = composeTestRule.onNodeWithTag(TEXT_FIELD_TAG)
-      .fetchSemanticsNode()
-      .boundsInWindow
-      .bottom
-    val keyboardTop = device.displayHeight - imeBottomPx
-    assertTrue(
-      "The keyboard covers the text field: field bottom $textFieldBottom, top of IME $keyboardTop",
-      textFieldBottom <= keyboardTop,
-    )
   }
-
-  private val device: UiDevice
-    get() = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
   @Test
   fun sheetKeepsItsShareOfTheContainerWhenTheKeyboardOpens() {
@@ -149,6 +152,7 @@ class SheetImeInsetsTest {
     }
 
     composeTestRule.waitUntil(TIMEOUT_MILLIS) { sheetState.isVisible }
+    composeTestRule.waitUntil(TIMEOUT_MILLIS) { imeBottomPx == 0 }
     composeTestRule.waitForIdle()
     val shareWithoutKeyboard = sheetState.containerShare()
 

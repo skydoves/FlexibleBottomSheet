@@ -66,18 +66,14 @@ public fun Float.isWrapContent(): Boolean = this == FlexibleSheetSize.WrapConten
  */
 @InternalFlexibleApi
 public fun Float.resolveSheetSize(screenHeight: Float, contentHeight: Float): Float {
-  return if (this.isWrapContent()) {
-    if (contentHeight <= 0f) {
-      // Use a small value as fallback when content is not yet measured.
-      // This ensures the anchor is created, and will be updated once content is measured.
-      // Using 0.01 (1% of screen) as a minimal placeholder.
-      0.01f
-    } else {
-      min(contentHeight, screenHeight) / screenHeight
-    }
-  } else {
-    this
-  }
+  if (!this.isWrapContent()) return this
+
+  // Placeholder until the content is measured, so the anchor still exists. Guarding screenHeight
+  // matters as much as contentHeight: the division would otherwise yield NaN, which no downstream
+  // comparison catches and which the swipeable would turn into an arbitrary target.
+  if (contentHeight <= 0f || screenHeight <= 0f) return 0.01f
+
+  return min(contentHeight, screenHeight) / screenHeight
 }
 
 /**
@@ -103,7 +99,7 @@ public fun Modifier.removeMinHeightConstraint(): Modifier = this.layout { measur
  *
  * For non-modal wrap content sheets, the sheet container starts collapsed (the Hidden state has a
  * tiny height), so measuring the content within the container would clamp it to that tiny height and
- * it could never grow — the sheet stays almost hidden (issue #95). By measuring against the screen
+ * it could never grow, so the sheet stays almost hidden (issue #95). By measuring against the screen
  * height, the reported content height is stable regardless of the current container size, breaking
  * the chicken-and-egg dependency. The minimum constraint is also removed so the content can be
  * smaller than the parent's minimum (mirrors [removeMinHeightConstraint]).

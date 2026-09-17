@@ -35,6 +35,37 @@ jobs:
       - name: API check
         run: ./gradlew apiCheck
 
+  test:
+    name: Unit and UI tests
+    runs-on: macos-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v5.0.0
+      - name: Set up JDK
+        uses: actions/setup-java@v5.0.0
+        with:
+          distribution: zulu
+          java-version: 17
+      - name: Cache Gradle and wrapper
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+      - name: Make Gradle executable
+        run: chmod +x ./gradlew
+      - name: Run unit and Compose UI tests
+        run: ./gradlew :flexible-core:desktopTest :flexible-bottomsheet-material3:desktopTest :flexible-bottomsheet-material:desktopTest
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: '**/build/reports/tests'
+
   build:
     runs-on: macos-latest
     steps:

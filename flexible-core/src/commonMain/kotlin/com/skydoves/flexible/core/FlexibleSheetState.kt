@@ -432,7 +432,9 @@ internal fun calculateVisibilityProgress(
     ?: return 0f
 
   val range = hiddenOffset - expandedOffset
-  if (range <= 0f) {
+  // `!(range > 0f)` rather than `range <= 0f` so NaN is caught: every NaN comparison is false, and
+  // `coerceIn` would pass it straight through to a caller promised 0f..1f.
+  if (!(range > 0f)) {
     // Degenerate range (single anchor / all-equal offsets). This is reachable on the first layout
     // pass, where the anchor set is frequently {Hidden}-only (FullyExpanded is null until the sheet
     // is measured, and the intermediate/slightly states may be skipped). Only report fully-expanded
@@ -443,6 +445,51 @@ internal fun calculateVisibilityProgress(
 
   return ((hiddenOffset - offset) / range).coerceIn(0f, 1f)
 }
+
+/**
+ * What a back gesture would do to the sheet in its current state.
+ *
+ * Back collapses the sheet one step at a time and dismisses it from its least expanded state. The
+ * sheet needs this both up front, to decide whether to claim the gesture, and when the gesture
+ * arrives, to act on it.
+ */
+@InternalFlexibleApi
+public enum class FlexibleSheetBackAction {
+  /** Collapse from [FlexibleSheetValue.FullyExpanded] to [FlexibleSheetValue.IntermediatelyExpanded]. */
+  CollapseToIntermediatelyExpanded,
+
+  /** Collapse from [FlexibleSheetValue.IntermediatelyExpanded] to [FlexibleSheetValue.SlightlyExpanded]. */
+  CollapseToSlightlyExpanded,
+
+  /** Hide the sheet. */
+  Hide,
+
+  /**
+   * Do nothing, and do not claim the gesture.
+   *
+   * A sheet with nowhere left to collapse to and no hidden state cannot act on back: `hide()`
+   * throws, and claiming the gesture anyway would make back a dead key (#92).
+   */
+  None,
+}
+
+/**
+ * The [FlexibleSheetBackAction] for this state right now. Backed by snapshot state, so reading it
+ * from composition subscribes to changes.
+ */
+@InternalFlexibleApi
+public val FlexibleSheetState.backGestureAction: FlexibleSheetBackAction
+  get() = when {
+    currentValue == FlexibleSheetValue.FullyExpanded && hasIntermediatelyExpandedState ->
+      FlexibleSheetBackAction.CollapseToIntermediatelyExpanded
+
+    currentValue == FlexibleSheetValue.IntermediatelyExpanded && hasSlightlyExpandedState ->
+      FlexibleSheetBackAction.CollapseToSlightlyExpanded
+
+    !skipHiddenState -> FlexibleSheetBackAction.Hide
+
+    else -> FlexibleSheetBackAction.None
+  }
 
 /**
  * Computes how opaque the modal scrim should be, from the given swipe [anchors] and current [offset].
@@ -468,9 +515,8 @@ internal fun calculateScrimProgress(
   // Nothing is on screen yet before the first layout pass, so nothing should be dimmed.
   if (offset == null || anchors.isEmpty()) return 0f
 
-  // Defensive: the library always publishes a hidden anchor, `skipHiddenState` only gates `hide()`
-  // and the default `confirmValueChange`. A sheet that genuinely had no hidden anchor could not
-  // travel toward hidden at all, so its scrim would never fade.
+  // Defensive: a hidden anchor is always published, `skipHiddenState` only gates `hide()`. Without
+  // one the sheet could not travel toward hidden, so its scrim would never fade.
   val hiddenOffset = anchors[FlexibleSheetValue.Hidden] ?: return 1f
 
   val leastExpandedVisibleOffset = anchors.asSequence()
@@ -480,9 +526,9 @@ internal fun calculateScrimProgress(
     ?: return 0f
 
   val range = hiddenOffset - leastExpandedVisibleOffset
-  // Degenerate range: a visible anchor sits exactly on the hidden anchor. Treat anything above the
-  // hidden anchor as fully visible rather than dividing by zero.
-  if (range <= 0f) return if (offset < hiddenOffset) 1f else 0f
+  // Degenerate or NaN range. Treat anything above the hidden anchor as fully visible rather than
+  // dividing by zero or letting a NaN alpha reach the canvas.
+  if (!(range > 0f)) return if (offset < hiddenOffset) 1f else 0f
 
   return ((hiddenOffset - offset) / range).coerceIn(0f, 1f)
 }

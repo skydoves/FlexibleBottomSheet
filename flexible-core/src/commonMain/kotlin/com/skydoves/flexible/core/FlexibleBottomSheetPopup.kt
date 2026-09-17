@@ -28,5 +28,6 @@ public expect fun FlexibleBottomSheetPopup(
   onDismissRequest: () -> Unit,
   windowInsets: WindowInsets,
   sheetState: FlexibleSheetState,
+  handlesBackGesture: Boolean,
   content: @Composable BoxScope.() -> Unit,
 )
