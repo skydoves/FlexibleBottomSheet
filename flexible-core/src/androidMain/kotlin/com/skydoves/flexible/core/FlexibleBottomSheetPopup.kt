@@ -131,6 +131,7 @@ public actual fun FlexibleBottomSheetPopup(
 
   SideEffect {
     flexibleBottomSheetWindow.updateParentComposition(parentComposition)
+    flexibleBottomSheetWindow.updateDismissRequest(onDismissRequest)
     flexibleBottomSheetWindow.setSheetInteractive(isSheetInteractive)
   }
 
@@ -167,15 +168,6 @@ private class FlexibleBottomSheetWindow(
     clipChildren = false
     isFocusable = true
     isFocusableInTouchMode = true
-
-    setOnKeyListener { _, keyCode, event ->
-      if (keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP) {
-        onDismissRequest()
-        true
-      } else {
-        false
-      }
-    }
   }
 
   private val windowManager =
@@ -183,6 +175,7 @@ private class FlexibleBottomSheetWindow(
 
   private var content: @Composable () -> Unit by mutableStateOf({})
   private var onBackInvokedCallback: OnBackInvokedCallback? = null
+  private var onBackInvokedDispatcher: OnBackInvokedDispatcher? = null
   private var isSheetInteractive: Boolean = true
   private var isAddedToWindowManager: Boolean = false
 
@@ -205,6 +198,16 @@ private class FlexibleBottomSheetWindow(
 
   fun updateParentComposition(parent: CompositionContext) {
     setParentCompositionContext(parent)
+  }
+
+  /**
+   * Adopts the latest dismiss lambda.
+   *
+   * The window itself is created inside a keyless `remember`, so without this the back key would
+   * keep invoking the lambda captured during the very first composition.
+   */
+  fun updateDismissRequest(onDismissRequest: () -> Unit) {
+    this.onDismissRequest = onDismissRequest
   }
 
   /**
@@ -235,21 +238,30 @@ private class FlexibleBottomSheetWindow(
     isAddedToWindowManager = true
     requestFocus()
 
+    // On API 33+ the platform routes back through OnBackInvokedDispatcher and never delivers
+    // KEYCODE_BACK to the view tree, but only for apps that opted into predictive back. For apps
+    // that did not, this registration is rejected (logged, not thrown) and the platform re-injects
+    // KEYCODE_BACK into this window instead, where [dispatchKeyEvent] picks it up. Exactly one of
+    // the two paths is ever live, so they cannot both fire for a single press.
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-      onBackInvokedCallback = OnBackInvokedCallback { onDismissRequest() }
-      findOnBackInvokedDispatcher()?.registerOnBackInvokedCallback(
+      val callback = OnBackInvokedCallback { onDismissRequest() }
+      val dispatcher = findOnBackInvokedDispatcher()
+      dispatcher?.registerOnBackInvokedCallback(
         OnBackInvokedDispatcher.PRIORITY_DEFAULT,
-        onBackInvokedCallback!!,
+        callback,
       )
+      onBackInvokedCallback = callback
+      onBackInvokedDispatcher = dispatcher
     }
   }
 
   fun dismiss() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
       onBackInvokedCallback?.let { callback ->
-        findOnBackInvokedDispatcher()?.unregisterOnBackInvokedCallback(callback)
+        onBackInvokedDispatcher?.unregisterOnBackInvokedCallback(callback)
       }
       onBackInvokedCallback = null
+      onBackInvokedDispatcher = null
     }
 
     setViewTreeLifecycleOwner(null)
@@ -283,6 +295,14 @@ private class FlexibleBottomSheetWindow(
       token = composeView.applicationWindowToken
       // Remove default Window animations
       windowAnimations = 0x00000040
+
+      // A window added through WindowManager starts at SOFT_INPUT_ADJUST_UNSPECIFIED, and a theme's
+      // windowSoftInputMode only ever reaches the activity's own window. Without ADJUST_RESIZE the
+      // platform leaves the IME out of this window's compat and visible insets, which is what made
+      // Modifier.imePadding() measure zero and let the keyboard cover the sheet content (#16).
+      // STATE_UNCHANGED keeps the sheet from toggling the keyboard as it is added or relaid out.
+      softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE or
+        WindowManager.LayoutParams.SOFT_INPUT_STATE_UNCHANGED
 
       noMoveAnimation?.let { (privateFlags, noMoveAnimationFlag) ->
         privateFlags.setInt(this, privateFlags.getInt(this) or noMoveAnimationFlag)
@@ -321,14 +341,26 @@ private class FlexibleBottomSheetWindow(
   }
 
   /**
-   * Taken from PopupWindow. Calls [onDismissRequest] when back button is pressed.
+   * Dismisses the sheet on the back key, for the platforms and apps that still deliver it to the
+   * view tree.
+   *
+   * This used to return `true` for every back event, including a **canceled** `ACTION_UP`, while
+   * only acting on a non canceled one. Window focus moves between this panel and the host activity
+   * on any touch outside a non modal sheet, and every such transfer cancels the in flight key
+   * event, so that branch silently ate the press and stopped it from reaching the activity: on the
+   * first screen of the back stack, where nothing else would have handled it either, back simply
+   * did nothing (#92). A press that is not acted on is now forwarded instead of swallowed.
    */
   override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-    if (event.keyCode == KeyEvent.KEYCODE_BACK) {
-      if (event.action == KeyEvent.ACTION_UP && !event.isCanceled) {
-        onDismissRequest()
-        return true
-      }
+    if (event.keyCode != KeyEvent.KEYCODE_BACK) {
+      return super.dispatchKeyEvent(event)
+    }
+    if (event.action == KeyEvent.ACTION_UP && !event.isCanceled) {
+      onDismissRequest()
+      return true
+    }
+    // Consume the matching DOWN so nothing else starts a back gesture for the same press.
+    if (event.action == KeyEvent.ACTION_DOWN && !event.isCanceled) {
       return true
     }
     return super.dispatchKeyEvent(event)

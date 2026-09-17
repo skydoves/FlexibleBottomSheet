@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.LocalContentColor
@@ -171,7 +172,10 @@ public fun FlexibleBottomSheet(
         sheetState.hasSlightlyExpandedState
       ) {
         scope.launch { sheetState.slightlyExpand() }
-      } else { // Is expanded without collapsed state or is collapsed.
+      } else if (!sheetState.skipHiddenState) {
+        // Is expanded without collapsed state or is collapsed. A sheet that cannot be hidden stays
+        // where it is: `hide()` throws when `skipHiddenState` is set, so routing the back key into
+        // it crashed the composition (#92).
         scope.launch { sheetState.hide() }.invokeOnCompletion { onDismissRequest() }
       }
       onBackPressed.invoke()
@@ -181,9 +185,16 @@ public fun FlexibleBottomSheet(
   ) {
     var isDragging by remember { mutableStateOf(false) }
     val isAnimationRunning = sheetState.swipeableState.isAnimationRunning
-    val screenHeightSize = screenHeight()
-    val screenHeightPxSize = screenHeightSize.toPx()
     val density = LocalDensity.current
+
+    // The sheet is laid out inside an ime padded container, so the room it can actually occupy
+    // shrinks when the keyboard opens, while screenHeight() does not. Sizing the anchors against the
+    // unshrunk screen leaves them disagreeing with the container they are measured in by exactly the
+    // keyboard height, which is what made the keyboard cover the sheet content and broke scrolling
+    // with the keyboard up (#16).
+    val imeHeight = with(density) { WindowInsets.ime.getBottom(density).toDp() }
+    val screenHeightSize = (screenHeight() - imeHeight).coerceAtLeast(0.dp)
+    val screenHeightPxSize = screenHeightSize.toPx()
 
     // Track measured content height for wrap content mode
     var contentHeightPx by remember { mutableStateOf(0f) }
