@@ -91,8 +91,13 @@ public actual fun FlexibleBottomSheetPopup(
       setCustomContent(
         parent = parentComposition,
         content = {
+          // This BackHandler is registered on the *host activity's* dispatcher, so it must be
+          // disabled while the sheet rests hidden. Otherwise a dismissed sheet keeps intercepting
+          // the activity's back press and back silently does nothing.
           if (!sheetState.skipHiddenState) {
-            BackHandler { onDismissRequest() }
+            BackHandler(enabled = sheetState.currentValue != FlexibleSheetValue.Hidden) {
+              onDismissRequest()
+            }
           }
           Box(
             Modifier
@@ -113,8 +118,20 @@ public actual fun FlexibleBottomSheetPopup(
     }
   }
 
+  // A fully hidden sheet is still composed, and its window still covers the screen and still holds
+  // input focus, so without this a dismissed sheet keeps swallowing the touches, key events and IME
+  // requests meant for the content behind it (#15). The window stays interactive for the whole hide
+  // animation and only steps aside once the sheet has come to rest in the hidden state.
+  //
+  // This runs in a SideEffect rather than a LaunchedEffect on purpose: a LaunchedEffect body is
+  // dispatched and would apply the flags a frame late, leaving the first frame of a re-opening sheet
+  // untouchable. SideEffect runs synchronously while changes are applied, after `show()`.
+  val isSheetInteractive = sheetState.targetValue != FlexibleSheetValue.Hidden ||
+    sheetState.currentValue != FlexibleSheetValue.Hidden
+
   SideEffect {
     flexibleBottomSheetWindow.updateParentComposition(parentComposition)
+    flexibleBottomSheetWindow.setSheetInteractive(isSheetInteractive)
   }
 
   DisposableEffect(flexibleBottomSheetWindow) {
@@ -166,6 +183,8 @@ private class FlexibleBottomSheetWindow(
 
   private var content: @Composable () -> Unit by mutableStateOf({})
   private var onBackInvokedCallback: OnBackInvokedCallback? = null
+  private var isSheetInteractive: Boolean = true
+  private var isAddedToWindowManager: Boolean = false
 
   override var shouldCreateCompositionOnAttachedToWindow: Boolean = false
     private set
@@ -188,8 +207,32 @@ private class FlexibleBottomSheetWindow(
     setParentCompositionContext(parent)
   }
 
+  /**
+   * Toggles whether this window takes part in input at all.
+   *
+   * Touches that land inside a window are consumed by that window even when no view handles them,
+   * and a focused window receives the key events and IME requests of the whole app, so hiding the
+   * sheet visually is not enough to hand input back to the content behind it.
+   */
+  fun setSheetInteractive(interactive: Boolean) {
+    if (isSheetInteractive == interactive) return
+    isSheetInteractive = interactive
+
+    // Before [show] the flag is simply picked up by the params [show] builds, so there is nothing to
+    // update yet. `isAttachedToWindow` must not be used as the guard here: the view is only attached
+    // on the first traversal after `addView`, which can land after this runs, and skipping the
+    // update then would leave the window flags permanently out of sync with the sheet.
+    if (!isAddedToWindowManager) return
+
+    windowManager.updateViewLayout(this, getWindowParams())
+    if (interactive) {
+      requestFocus()
+    }
+  }
+
   fun show() {
     windowManager.addView(this, getWindowParams())
+    isAddedToWindowManager = true
     requestFocus()
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -213,9 +256,10 @@ private class FlexibleBottomSheetWindow(
     setViewTreeSavedStateRegistryOwner(null)
     composeView.viewTreeObserver.removeOnGlobalLayoutListener(this)
     windowManager.removeViewImmediate(this)
+    isAddedToWindowManager = false
   }
 
-  private fun getWindowParams(windowHeight: Int? = null): WindowManager.LayoutParams {
+  private fun getWindowParams(): WindowManager.LayoutParams {
     return WindowManager.LayoutParams().apply {
       // Application panel window
       type = WindowManager.LayoutParams.TYPE_APPLICATION_PANEL
@@ -228,7 +272,7 @@ private class FlexibleBottomSheetWindow(
         height = WindowManager.LayoutParams.MATCH_PARENT
         gravity = Gravity.TOP or Gravity.CENTER
       } else {
-        height = windowHeight ?: WindowManager.LayoutParams.WRAP_CONTENT
+        height = WindowManager.LayoutParams.WRAP_CONTENT
         gravity = Gravity.BOTTOM or Gravity.CENTER
       }
       // Format of screen pixels
@@ -240,16 +284,9 @@ private class FlexibleBottomSheetWindow(
       // Remove default Window animations
       windowAnimations = 0x00000040
 
-      val className = "android.view.WindowManager\$LayoutParams"
-      val layoutParamsClass = Class.forName(className)
-
-      val privateFlags: Field = layoutParamsClass.getField("privateFlags")
-      val noAnim: Field = layoutParamsClass.getField("PRIVATE_FLAG_NO_MOVE_ANIMATION")
-
-      var privateFlagsValue: Int = privateFlags.getInt(this)
-      val noAnimFlag: Int = noAnim.getInt(this)
-      privateFlagsValue = privateFlagsValue or noAnimFlag
-      privateFlags.setInt(this, privateFlagsValue)
+      noMoveAnimation?.let { (privateFlags, noMoveAnimationFlag) ->
+        privateFlags.setInt(this, privateFlags.getInt(this) or noMoveAnimationFlag)
+      }
 
       flags = flags and WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE.inv()
 
@@ -264,6 +301,11 @@ private class FlexibleBottomSheetWindow(
         flags or WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
           WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH or
           WindowManager.LayoutParams.FLAG_SPLIT_TOUCH
+      }
+
+      if (!isSheetInteractive) {
+        flags = flags or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
+          WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
       }
 
       // Use FLAG_LAYOUT_NO_LIMITS to extend into system bars when:
@@ -294,5 +336,24 @@ private class FlexibleBottomSheetWindow(
 
   override fun onGlobalLayout() {
     // No-op
+  }
+
+  private companion object {
+    /**
+     * `WindowManager.LayoutParams.privateFlags` and `PRIVATE_FLAG_NO_MOVE_ANIMATION` are hidden
+     * platform API used to suppress the window move animation.
+     *
+     * They are resolved once for the process instead of on every window layout pass: the window
+     * params are now rebuilt whenever the sheet's interactivity changes, and a build that
+     * blocklists these members must degrade to "the window animates" rather than throw on every
+     * update.
+     */
+    val noMoveAnimation: Pair<Field, Int>? = runCatching {
+      val layoutParamsClass = Class.forName("android.view.WindowManager\$LayoutParams")
+      val privateFlags: Field = layoutParamsClass.getField("privateFlags")
+      val noMoveAnimationFlag: Field =
+        layoutParamsClass.getField("PRIVATE_FLAG_NO_MOVE_ANIMATION")
+      privateFlags to noMoveAnimationFlag.getInt(null)
+    }.getOrNull()
   }
 }
