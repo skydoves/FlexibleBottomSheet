@@ -239,7 +239,7 @@ public fun FlexibleBottomSheet(
       Scrim(
         color = scrimColor,
         onDismissRequest = animateToDismiss,
-        visible = sheetState.targetValue != FlexibleSheetValue.Hidden,
+        sheetState = sheetState,
       )
     }
 

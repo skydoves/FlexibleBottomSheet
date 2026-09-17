@@ -444,6 +444,49 @@ internal fun calculateVisibilityProgress(
   return ((hiddenOffset - offset) / range).coerceIn(0f, 1f)
 }
 
+/**
+ * Computes how opaque the modal scrim should be, from the given swipe [anchors] and current [offset].
+ *
+ * This deliberately differs from [calculateVisibilityProgress]: the scrim is fully opaque as soon as
+ * the sheet rests at *any* visible anchor, and only fades while the sheet travels the last stretch
+ * toward [FlexibleSheetValue.Hidden]. Expanding a sheet from slightly to fully expanded therefore
+ * does not change the scrim at all, which matches the platform bottom sheet behavior.
+ *
+ * Deriving the alpha from the live offset (instead of tweening a boolean "is the target hidden")
+ * is what removes the scrim flicker on a fast dismiss fling (#59): a fling makes the swipeable
+ * re-evaluate its target value several times in a row, so a boolean-driven tween restarts in the
+ * opposite direction mid-animation and visibly blinks. The offset itself is monotonic across the
+ * whole gesture, so an offset-driven alpha cannot blink.
+ *
+ * @return `1f` while the sheet is at or above its least expanded visible anchor, falling to `0f` at
+ * the [FlexibleSheetValue.Hidden] anchor, and `0f` before the offset is initialized.
+ */
+internal fun calculateScrimProgress(
+  anchors: Map<FlexibleSheetValue, Float>,
+  offset: Float?,
+): Float {
+  // Nothing is on screen yet before the first layout pass, so nothing should be dimmed.
+  if (offset == null || anchors.isEmpty()) return 0f
+
+  // Defensive: the library always publishes a hidden anchor, `skipHiddenState` only gates `hide()`
+  // and the default `confirmValueChange`. A sheet that genuinely had no hidden anchor could not
+  // travel toward hidden at all, so its scrim would never fade.
+  val hiddenOffset = anchors[FlexibleSheetValue.Hidden] ?: return 1f
+
+  val leastExpandedVisibleOffset = anchors.asSequence()
+    .filter { it.key != FlexibleSheetValue.Hidden }
+    .maxOfOrNull { it.value }
+    // Only the hidden anchor exists yet, so there is no visible sheet to dim behind.
+    ?: return 0f
+
+  val range = hiddenOffset - leastExpandedVisibleOffset
+  // Degenerate range: a visible anchor sits exactly on the hidden anchor. Treat anything above the
+  // hidden anchor as fully visible rather than dividing by zero.
+  if (range <= 0f) return if (offset < hiddenOffset) 1f else 0f
+
+  return ((hiddenOffset - offset) / range).coerceIn(0f, 1f)
+}
+
 @InternalFlexibleApi
 public fun emptySwipeWithinBottomSheetBoundsNestedScrollConnection(): NestedScrollConnection =
   object : NestedScrollConnection {

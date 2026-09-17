@@ -88,6 +88,7 @@ public final class com/skydoves/flexible/core/ScreenHeightKt {
 }
 
 public final class com/skydoves/flexible/core/ScrimKt {
+	public static final fun Scrim-3J-VO9M (JLkotlin/jvm/functions/Function0;Lcom/skydoves/flexible/core/FlexibleSheetState;Landroidx/compose/runtime/Composer;I)V
 	public static final fun Scrim-3J-VO9M (JLkotlin/jvm/functions/Function0;ZLandroidx/compose/runtime/Composer;I)V
 }
 
