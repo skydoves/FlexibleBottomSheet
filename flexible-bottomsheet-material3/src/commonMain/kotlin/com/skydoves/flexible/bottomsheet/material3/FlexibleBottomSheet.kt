@@ -45,7 +45,6 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.collapse
 import androidx.compose.ui.semantics.dismiss
 import androidx.compose.ui.semantics.expand
@@ -193,7 +192,6 @@ public fun FlexibleBottomSheet(
   ) {
     var isDragging by remember { mutableStateOf(false) }
     val isAnimationRunning = sheetState.swipeableState.isAnimationRunning
-    val density = LocalDensity.current
 
     val screenHeightSize = sheetMaxHeight(sheetState)
     val screenHeightPxSize = screenHeightSize.toPx()

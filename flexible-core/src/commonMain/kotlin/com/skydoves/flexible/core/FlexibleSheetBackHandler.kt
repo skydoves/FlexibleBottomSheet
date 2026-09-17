@@ -18,11 +18,11 @@ package com.skydoves.flexible.core
 import androidx.compose.runtime.Composable
 
 /**
- * Handles the platform back gesture for an inline sheet, which has no window of its own to catch it.
+ * Handles the platform back gesture for an inline sheet, which has no window of its own to catch.
  *
- * On Android this registers with the host activity's back dispatcher, so the sheet takes part in the
- * normal back stack and predictive back like any other composable. The other targets have no system
- * back concept and this does nothing there.
+ * On Android this registers with the host activity's back dispatcher, so the sheet joins the normal
+ * back stack and predictive back like any other composable. The other targets have no system back
+ * gesture and this does nothing there.
  *
  * @param enabled Whether the sheet should currently consume the back gesture.
  * @param onBack Invoked when the back gesture is consumed.

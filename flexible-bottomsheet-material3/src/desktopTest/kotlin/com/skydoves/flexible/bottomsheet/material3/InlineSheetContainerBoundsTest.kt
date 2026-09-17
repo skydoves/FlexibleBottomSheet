@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
@@ -66,37 +67,7 @@ class InlineSheetContainerBoundsTest {
 
   @Test
   fun inlineSheet_isConfinedToTheSlotItWasPlacedIn() = runComposeUiTest {
-    setContent {
-      Column(Modifier.fillMaxSize().testTag(RootTag)) {
-        Box(Modifier.fillMaxWidth().weight(1f).background(TopBarColor))
-
-        // The "Scaffold content" slot: exactly half the window, a quarter of it from the top.
-        Box(Modifier.fillMaxWidth().weight(2f).background(Color.White)) {
-          val sheetState = rememberFlexibleBottomSheetState(
-            isModal = false,
-            skipHiddenState = true,
-            skipSlightlyExpanded = true,
-            initialValue = FlexibleSheetValue.FullyExpanded,
-            flexibleSheetSize = FlexibleSheetSize(
-              fullyExpanded = 1f,
-              intermediatelyExpanded = 0.5f,
-            ),
-            sheetHost = FlexibleSheetHost.Inline,
-          )
-          FlexibleBottomSheet(
-            onDismissRequest = {},
-            sheetState = sheetState,
-            containerColor = SheetColor,
-            shape = RectangleShape,
-            dragHandle = null,
-          ) {
-            Box(Modifier.fillMaxWidth().height(80.dp))
-          }
-        }
-
-        Box(Modifier.fillMaxWidth().weight(1f).background(BottomBarColor))
-      }
-    }
+    setContent { BarsAroundASlottedSheet(sheetHost = FlexibleSheetHost.Inline) }
     waitForIdle()
 
     val image = onNodeWithTag(RootTag).captureToImage()
@@ -131,6 +102,60 @@ class InlineSheetContainerBoundsTest {
     val bottomBar = pixels[pixels.width / 2, image.height - 2]
     assertTrue(topBar.isTopBarColor(), "The sheet painted over the top bar: $topBar")
     assertTrue(bottomBar.isBottomBarColor(), "The sheet painted over the bottom bar: $bottomBar")
+  }
+
+  @Test
+  fun windowHostedSheet_spillsOutOfTheSlotItWasPlacedIn() = runComposeUiTest {
+    setContent { BarsAroundASlottedSheet(sheetHost = FlexibleSheetHost.Window) }
+    waitForIdle()
+
+    val image = onNodeWithTag(RootTag).captureToImage()
+    val slotTop = image.height / 4
+
+    val paintedTop = image.firstSheetRow()
+    assertTrue(paintedTop >= 0, "The sheet was not painted at all")
+
+    // The counterpart of the test above, so the difference between the two hosts is pinned by an
+    // assertion rather than only described. A window hosted sheet is a whole window tall and is
+    // anchored to the bottom of the slot, so it grows up out of it and over the top bar.
+    assertTrue(
+      paintedTop < slotTop,
+      "A window hosted sheet was confined to its slot: painted from row $paintedTop, slot starts " +
+        "at $slotTop",
+    )
+  }
+
+  @Composable
+  private fun BarsAroundASlottedSheet(sheetHost: FlexibleSheetHost) {
+    Column(Modifier.fillMaxSize().testTag(RootTag)) {
+      Box(Modifier.fillMaxWidth().weight(1f).background(TopBarColor))
+
+      // The "Scaffold content" slot: exactly half the window, a quarter of it from the top.
+      Box(Modifier.fillMaxWidth().weight(2f).background(Color.White)) {
+        val sheetState = rememberFlexibleBottomSheetState(
+          isModal = false,
+          skipHiddenState = true,
+          skipSlightlyExpanded = true,
+          initialValue = FlexibleSheetValue.FullyExpanded,
+          flexibleSheetSize = FlexibleSheetSize(
+            fullyExpanded = 1f,
+            intermediatelyExpanded = 0.5f,
+          ),
+          sheetHost = sheetHost,
+        )
+        FlexibleBottomSheet(
+          onDismissRequest = {},
+          sheetState = sheetState,
+          containerColor = SheetColor,
+          shape = RectangleShape,
+          dragHandle = null,
+        ) {
+          Box(Modifier.fillMaxWidth().height(80.dp))
+        }
+      }
+
+      Box(Modifier.fillMaxWidth().weight(1f).background(BottomBarColor))
+    }
   }
 
   /** The topmost row painted with the sheet's container color, or `-1` when it is not on screen. */

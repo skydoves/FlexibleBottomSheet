@@ -281,7 +281,7 @@ FlexibleBottomSheet(
 
 An inline sheet behaves like any other composable. It layers by composition order, so anything composed after it draws above it. It is confined to its parent's bounds, so a sheet placed in `Scaffold` content stops above the bottom bar. It shares the host window, so a `TextField` inside it gets the normal copy and paste toolbar and dropdowns anchor correctly. And a non-modal inline sheet only receives the touches that actually land on it.
 
-`FlexibleSheetHost.Window` remains the default, so existing code is unchanged. See [Sheet Host](https://skydoves.github.io/FlexibleBottomSheet/sheet-host/) for when to use each.
+`FlexibleSheetHost.Window` remains the default, so existing behavior is unchanged. The addition is source compatible but not binary compatible, so dependents need to recompile. See [Sheet Host](https://skydoves.github.io/FlexibleBottomSheet/sheet-host/) for when to use each, and for what changes when you switch.
 
 ### Dynamic Content By Monitoring Value Changes
 

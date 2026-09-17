@@ -18,10 +18,14 @@ package com.skydoves.flexible.core
 import androidx.compose.runtime.Composable
 
 /**
- * No-op: desktop, iOS, macOS and the web targets have no system back gesture to intercept.
+ * No-op on the skia targets.
+ *
+ * Note that a window hosted sheet does get a dismiss key here, because its `Popup` sets
+ * `dismissOnBackPress`, which is the Escape key on desktop. An inline sheet has no window to carry
+ * that, so on these targets it is dismissed only by gesture or programmatically.
  */
-@Suppress("UNUSED_PARAMETER")
 @Composable
 @InternalFlexibleApi
 public actual fun FlexibleSheetBackHandler(enabled: Boolean, onBack: () -> Unit) {
+  // No-op.
 }

@@ -30,6 +30,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.isSpecified
+import androidx.compose.ui.unit.isUnspecified
 
 /**
  * Hosts the bottom sheet content according to [FlexibleSheetState.sheetHost].
@@ -99,7 +100,19 @@ private fun InlineFlexibleSheetContainer(
   ) {
     // An inline sheet is measured against the slot it was placed in, not against the screen, so a
     // sheet inside Scaffold content stops above the bottom bar instead of covering it.
-    CompositionLocalProvider(LocalFlexibleSheetMaxHeight provides maxHeight) {
+    //
+    // An unbounded slot, such as a scrollable parent, reports Dp.Infinity here. That is "specified"
+    // as far as Dp is concerned and would silently poison every size derived from it, so it is
+    // refused rather than propagated.
+    val slotMaxHeight = maxHeight.takeIf { it.value.isFinite() } ?: Dp.Unspecified
+    if (slotMaxHeight.isUnspecified) {
+      log(
+        "An inline FlexibleBottomSheet needs a parent with a bounded height. " +
+          "Falling back to the screen height.",
+      )
+    }
+
+    CompositionLocalProvider(LocalFlexibleSheetMaxHeight provides slotMaxHeight) {
       content()
     }
   }
@@ -118,7 +131,7 @@ internal val LocalFlexibleSheetMaxHeight = compositionLocalOf { Dp.Unspecified }
  * for the window insets and the keyboard, so its height is the room actually available: a sheet
  * inside `Scaffold` content stops above the bottom bar instead of covering it.
  *
- * A window hosted sheet has no such container. A modal one falls back to the screen height minus the
+ * A window hosted sheet has no such container. A modal one falls back to the screen height less the
  * keyboard, because it fills an ime padded container whose height shrinks while `screenHeight()`
  * does not (#16). A non-modal one is its own explicit height, so the two never disagreed and the
  * screen height is used as is.
@@ -126,9 +139,13 @@ internal val LocalFlexibleSheetMaxHeight = compositionLocalOf { Dp.Unspecified }
 @Composable
 @InternalFlexibleApi
 public fun sheetMaxHeight(sheetState: FlexibleSheetState): Dp {
-  val containerMaxHeight = LocalFlexibleSheetMaxHeight.current
-  if (containerMaxHeight.isSpecified) {
-    return containerMaxHeight
+  // Only an inline sheet may use the container height. The local is visible to a window hosted
+  // sheet declared inside an inline sheet's content, and that one must still size to the screen.
+  if (sheetState.sheetHost == FlexibleSheetHost.Inline) {
+    val containerMaxHeight = LocalFlexibleSheetMaxHeight.current
+    if (containerMaxHeight.isSpecified) {
+      return containerMaxHeight
+    }
   }
   if (!sheetState.isModal) {
     return screenHeight()

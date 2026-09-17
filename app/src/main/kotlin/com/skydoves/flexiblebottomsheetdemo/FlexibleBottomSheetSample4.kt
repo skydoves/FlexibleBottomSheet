@@ -15,6 +15,7 @@
  */
 package com.skydoves.flexiblebottomsheetdemo
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -60,6 +61,9 @@ fun FlexibleBottomSheetSample4(
   onDismissRequest: () -> Unit,
 ) {
   var selectedTab by remember { mutableIntStateOf(1) }
+
+  // The sheet is non-modal and cannot be hidden, so it never claims back. Back returns to the list.
+  BackHandler { onDismissRequest() }
 
   val sheetState = rememberFlexibleBottomSheetState(
     sheetHost = FlexibleSheetHost.Inline,

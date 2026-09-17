@@ -698,6 +698,7 @@ private fun rememberFlexibleSheetState(
     skipHiddenState,
     skipIntermediatelyExpanded,
     skipSlightlyExpanded,
+    sheetHost,
     confirmValueChange,
     saver = FlexibleSheetState.Saver(
       skipHiddenState = skipHiddenState,

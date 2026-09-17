@@ -16,7 +16,7 @@
 package com.skydoves.flexible.core
 
 /**
- * Determines where a [FlexibleBottomSheet] is rendered.
+ * Determines where a flexible bottom sheet is rendered.
  *
  * The host decides whether the sheet lives in a platform window of its own or inside the
  * composition that declared it, which in turn decides how it layers against the rest of the app,
@@ -44,6 +44,10 @@ public enum class FlexibleSheetHost {
    * a non modal sheet only receives the touches that actually land on it.
    *
    * Prefer this host when the sheet is part of a screen rather than an overlay on top of the app.
+   *
+   * The sheet fills the container it is placed in, so that must be an overlay style parent
+   * with a bounded height, typically a `Box`. In a `Column` or a `Row` it would take the remaining
+   * space from its siblings, and in a scrollable parent it has no height to size against.
    */
   Inline,
 }
