@@ -40,6 +40,7 @@ public actual fun FlexibleBottomSheetPopup(
   onDismissRequest: () -> Unit,
   windowInsets: WindowInsets,
   sheetState: FlexibleSheetState,
+  handlesBackGesture: Boolean,
   content: @Composable BoxScope.() -> Unit,
 ) {
   Popup(
@@ -55,6 +56,9 @@ public actual fun FlexibleBottomSheetPopup(
       clippingEnabled = false,
       usePlatformInsets = false,
       dismissOnClickOutside = false,
+      // Only claim the back gesture when the sheet would actually act on it, otherwise back
+      // becomes a dead key for a sheet that has nowhere left to collapse to.
+      dismissOnBackPress = handlesBackGesture,
     ),
   ) {
     Box(

@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.Surface
@@ -54,9 +55,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.skydoves.flexible.core.FlexibleBottomSheetPopup
+import com.skydoves.flexible.core.FlexibleSheetBackAction
 import com.skydoves.flexible.core.FlexibleSheetState
 import com.skydoves.flexible.core.FlexibleSheetValue
 import com.skydoves.flexible.core.Scrim
+import com.skydoves.flexible.core.backGestureAction
 import com.skydoves.flexible.core.consumeSwipeWithinBottomSheetBoundsNestedScrollConnection
 import com.skydoves.flexible.core.emptySwipeWithinBottomSheetBoundsNestedScrollConnection
 import com.skydoves.flexible.core.flexibleBottomSheetAnchorChangeHandler
@@ -83,6 +86,9 @@ import kotlinx.coroutines.launch
  *
  * @param onDismissRequest Executes when the user clicks outside of the bottom sheet, after sheet
  * animates to [FlexibleSheetValue.Hidden].
+ * @param onBackPressed Executes when a back gesture reaches the sheet, after the resulting state
+ * change has been started. It is not invoked when the sheet has nowhere left to collapse to and
+ * cannot be hidden, because the sheet does not claim the gesture in that case.
  * @param modifier Optional [Modifier] for the bottom sheet.
  * @param sheetState The state of the bottom sheet.
  * @param onTargetChanges Callback to listen for changes in [FlexibleSheetValue] targets.
@@ -158,33 +164,50 @@ public fun FlexibleBottomSheet(
       ).size
   }
 
+  // Read here so the registration is in place before a gesture arrives, and read again inside the
+  // lambda so the action is current: a press can land before the recomposition that followed the
+  // previous one, and a value captured here would be a step behind.
+  val handlesBackGesture = sheetState.backGestureAction != FlexibleSheetBackAction.None
+
   FlexibleBottomSheetPopup(
     onDismissRequest = {
-      onBackPressed.invoke()
-      if (sheetState.currentValue == FlexibleSheetValue.FullyExpanded &&
-        sheetState.hasIntermediatelyExpandedState
-      ) {
-        scope.launch { sheetState.intermediatelyExpand() }
-      } else if (sheetState.currentValue == FlexibleSheetValue.IntermediatelyExpanded &&
-        sheetState.hasSlightlyExpandedState
-      ) {
-        scope.launch { sheetState.slightlyExpand() }
-      } else { // Is expanded without collapsed state or is collapsed.
-        scope.launch { sheetState.hide() }.invokeOnCompletion { onDismissRequest() }
+      when (sheetState.backGestureAction) {
+        FlexibleSheetBackAction.CollapseToIntermediatelyExpanded ->
+          scope.launch { sheetState.intermediatelyExpand() }
+
+        FlexibleSheetBackAction.CollapseToSlightlyExpanded ->
+          scope.launch { sheetState.slightlyExpand() }
+
+        FlexibleSheetBackAction.Hide ->
+          scope.launch { sheetState.hide() }.invokeOnCompletion { onDismissRequest() }
+
+        FlexibleSheetBackAction.None -> Unit
       }
+      onBackPressed.invoke()
     },
     sheetState = sheetState,
     windowInsets = windowInsets,
+    handlesBackGesture = handlesBackGesture,
   ) {
     var isDragging by remember { mutableStateOf(false) }
     val isAnimationRunning = sheetState.swipeableState.isAnimationRunning
-    val screenHeightSize = screenHeight()
-    val screenHeightPxSize = screenHeightSize.toPx()
     val density = LocalDensity.current
+
+    // A modal sheet fills an ime padded container, so its room shrinks with the keyboard while
+    // screenHeight() does not, and its anchors ended up disagreeing with the container by exactly
+    // the keyboard height (#16). Non-modal is excluded on purpose: its container is its own explicit
+    // height, so the two never disagreed, and shrinking the basis there would move its anchors on
+    // every frame of the keyboard animation.
+    val screenHeightSize = if (sheetState.isModal) {
+      val imeHeight = with(density) { WindowInsets.ime.getBottom(density).toDp() }
+      (screenHeight() - imeHeight).coerceAtLeast(1.dp)
+    } else {
+      screenHeight()
+    }
+    val screenHeightPxSize = screenHeightSize.toPx()
 
     // Track measured content height for wrap content mode
     var contentHeightPx by remember { mutableStateOf(0f) }
-    val contentHeightDp = with(density) { contentHeightPx.toDp() }
 
     val flexibleSheetSize = sheetState.flexibleSheetSize
 
