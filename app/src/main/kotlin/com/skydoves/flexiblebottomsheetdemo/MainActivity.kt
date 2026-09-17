@@ -48,8 +48,14 @@ class MainActivity : ComponentActivity() {
       var isShowingBottomSheet1 by remember { mutableStateOf(false) }
       var isShowingBottomSheet2 by remember { mutableStateOf(false) }
       var isShowingBottomSheet3 by remember { mutableStateOf(false) }
+      var isShowingInlineSheetScreen by remember { mutableStateOf(false) }
 
       FlexibleBottomSheetDemoTheme {
+        if (isShowingInlineSheetScreen) {
+          FlexibleBottomSheetSample4 { isShowingInlineSheetScreen = false }
+          return@FlexibleBottomSheetDemoTheme
+        }
+
         Box(modifier = Modifier.fillMaxSize()) {
           Column(
             modifier = Modifier.fillMaxSize(),
@@ -82,6 +88,14 @@ class MainActivity : ComponentActivity() {
               },
             ) {
               Text(text = "Show Dynamic Content Sheet")
+            }
+
+            Button(
+              onClick = {
+                isShowingInlineSheetScreen = true
+              },
+            ) {
+              Text(text = "Show Inline Sheet Above a Bottom Bar")
             }
 
             TestButton(title = "Show a Toast 3")

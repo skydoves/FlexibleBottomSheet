@@ -262,6 +262,27 @@ You will see the result below:
 
 <img src="previews/preview10.gif" width="320px">
 
+### Sheet Host
+
+By default the sheet is rendered in a platform window of its own, so it draws above every composable in your app and cannot be covered by a navigation drawer, a bottom app bar, or a sticky footer. Set `sheetHost` to `FlexibleSheetHost.Inline` to render it inside the composition that declared it instead:
+
+```kotlin
+FlexibleBottomSheet(
+  onDismissRequest = onDismissRequest,
+  sheetState = rememberFlexibleBottomSheetState(
+    sheetHost = FlexibleSheetHost.Inline,
+    isModal = false,
+    skipSlightlyExpanded = false,
+  ),
+) {
+  ..
+}
+```
+
+An inline sheet behaves like any other composable. It layers by composition order, so anything composed after it draws above it. It is confined to its parent's bounds, so a sheet placed in `Scaffold` content stops above the bottom bar. It shares the host window, so a `TextField` inside it gets the normal copy and paste toolbar and dropdowns anchor correctly. And a non-modal inline sheet only receives the touches that actually land on it.
+
+`FlexibleSheetHost.Window` remains the default, so existing behavior is unchanged. The addition is source compatible but not binary compatible, so dependents need to recompile. See [Sheet Host](https://skydoves.github.io/FlexibleBottomSheet/sheet-host/) for when to use each, and for what changes when you switch.
+
 ### Dynamic Content By Monitoring Value Changes
 
 You can dynamically compose your bottom sheet content by tracking the bottom sheet state changes. The sample code below demonstrates how you can easily observe the sheet state and adjust the text size accordingly:

@@ -13,12 +13,20 @@ public final class com/skydoves/flexiblebottomsheetdemo/ComposableSingletons$Fle
 	public final fun getLambda$-306243029$app_release ()Lkotlin/jvm/functions/Function3;
 }
 
+public final class com/skydoves/flexiblebottomsheetdemo/ComposableSingletons$FlexibleBottomSheetSample4Kt {
+	public static final field INSTANCE Lcom/skydoves/flexiblebottomsheetdemo/ComposableSingletons$FlexibleBottomSheetSample4Kt;
+	public fun <init> ()V
+	public final fun getLambda$-1939913821$app_release ()Lkotlin/jvm/functions/Function3;
+	public final fun getLambda$1359245810$app_release ()Lkotlin/jvm/functions/Function3;
+}
+
 public final class com/skydoves/flexiblebottomsheetdemo/ComposableSingletons$MainActivityKt {
 	public static final field INSTANCE Lcom/skydoves/flexiblebottomsheetdemo/ComposableSingletons$MainActivityKt;
 	public fun <init> ()V
 	public final fun getLambda$-1405033129$app_release ()Lkotlin/jvm/functions/Function3;
 	public final fun getLambda$-1785979185$app_release ()Lkotlin/jvm/functions/Function3;
 	public final fun getLambda$2032147935$app_release ()Lkotlin/jvm/functions/Function2;
+	public final fun getLambda$305550352$app_release ()Lkotlin/jvm/functions/Function3;
 	public final fun getLambda$417458574$app_release ()Lkotlin/jvm/functions/Function3;
 }
 
@@ -32,6 +40,10 @@ public final class com/skydoves/flexiblebottomsheetdemo/FlexibleBottomSheetSampl
 
 public final class com/skydoves/flexiblebottomsheetdemo/FlexibleBottomSheetSample3Kt {
 	public static final fun FlexibleBottomSheetSample3 (Lkotlin/jvm/functions/Function0;Landroidx/compose/runtime/Composer;I)V
+}
+
+public final class com/skydoves/flexiblebottomsheetdemo/FlexibleBottomSheetSample4Kt {
+	public static final fun FlexibleBottomSheetSample4 (Lkotlin/jvm/functions/Function0;Landroidx/compose/runtime/Composer;I)V
 }
 
 public final class com/skydoves/flexiblebottomsheetdemo/MainActivity : androidx/activity/ComponentActivity {

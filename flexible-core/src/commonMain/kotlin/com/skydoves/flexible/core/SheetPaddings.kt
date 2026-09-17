@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.unit.dp
 
 /**
  * Adds paddings to accommodate the fully expanded size excluding the window insets.
@@ -32,20 +33,25 @@ import androidx.compose.ui.composed
  * the full content size may be hidden under the screen space and window insets (status + navigation) bars.
  * In such cases, you may need to add calculated paddings when using fully served content inside the bottom sheet.
  *
- * Note: When [FlexibleSheetState.containSystemBars] is true, system bar padding is not applied,
- * allowing the sheet to extend edge-to-edge (useful with enableEdgeToEdge()).
+ * Note: the system bar term is dropped when [FlexibleSheetState.containSystemBars] is true, so the
+ * sheet can extend edge-to-edge (useful with enableEdgeToEdge()), and for inline sheets, whose host
+ * layout already owns the insets.
  */
 public fun Modifier.sheetPaddings(sheetState: FlexibleSheetState): Modifier = composed {
-  // When containSystemBars is true, the sheet should extend edge-to-edge without system bar padding.
-  // This is useful when using enableEdgeToEdge() or WindowCompat.setDecorFitsSystemWindows(window, false).
-  if (sheetState.containSystemBars) {
-    return@composed this
-  }
-
-  val systemBarsPadding = WindowInsets.systemBars.asPaddingValues()
-  val paddings =
+  // The system bar term is skipped when the sheet extends edge-to-edge, and for inline sheets, whose
+  // host layout has already accounted for the insets. The offset compensation below still applies in
+  // both cases: it exists because the sheet fills its container and is then pushed down, not because
+  // of insets.
+  val ownsSystemBars = sheetState.containSystemBars ||
+    sheetState.sheetHost == FlexibleSheetHost.Inline
+  val paddings = if (ownsSystemBars) {
+    0.dp
+  } else {
+    val systemBarsPadding = WindowInsets.systemBars.asPaddingValues()
     systemBarsPadding.calculateBottomPadding() + systemBarsPadding.calculateTopPadding()
-  val availableHeight = screenHeight() * (1 - sheetState.flexibleSheetSize.fullyExpanded)
+  }
+  val availableHeight =
+    sheetMaxHeight(sheetState) * (1 - sheetState.flexibleSheetSize.fullyExpanded)
   val padding = availableHeight - paddings
 
   if (sheetState.currentValue == FlexibleSheetValue.FullyExpanded && padding.toPx() > 0) {

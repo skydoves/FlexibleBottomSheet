@@ -2,6 +2,14 @@ public abstract interface class com/skydoves/flexible/core/AnchorChangeHandler {
 	public abstract fun onAnchorsChanged (Ljava/lang/Object;Ljava/util/Map;Ljava/util/Map;)V
 }
 
+public final class com/skydoves/flexible/core/FlexibleSheetHost : java/lang/Enum {
+	public static final field Inline Lcom/skydoves/flexible/core/FlexibleSheetHost;
+	public static final field Window Lcom/skydoves/flexible/core/FlexibleSheetHost;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcom/skydoves/flexible/core/FlexibleSheetHost;
+	public static fun values ()[Lcom/skydoves/flexible/core/FlexibleSheetHost;
+}
+
 public final class com/skydoves/flexible/core/FlexibleSheetSize {
 	public static final field $stable I
 	public static final field Companion Lcom/skydoves/flexible/core/FlexibleSheetSize$Companion;
@@ -28,8 +36,8 @@ public final class com/skydoves/flexible/core/FlexibleSheetSize$Companion {
 
 public final class com/skydoves/flexible/core/FlexibleSheetState {
 	public static final field $stable I
-	public fun <init> (ZZZLcom/skydoves/flexible/core/FlexibleSheetSize;ZZZLandroidx/compose/animation/core/AnimationSpec;Lcom/skydoves/flexible/core/FlexibleSheetValue;Lkotlin/jvm/functions/Function1;)V
-	public synthetic fun <init> (ZZZLcom/skydoves/flexible/core/FlexibleSheetSize;ZZZLandroidx/compose/animation/core/AnimationSpec;Lcom/skydoves/flexible/core/FlexibleSheetValue;Lkotlin/jvm/functions/Function1;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (ZZZLcom/skydoves/flexible/core/FlexibleSheetSize;ZZZLandroidx/compose/animation/core/AnimationSpec;Lcom/skydoves/flexible/core/FlexibleSheetValue;Lkotlin/jvm/functions/Function1;Lcom/skydoves/flexible/core/FlexibleSheetHost;)V
+	public synthetic fun <init> (ZZZLcom/skydoves/flexible/core/FlexibleSheetSize;ZZZLandroidx/compose/animation/core/AnimationSpec;Lcom/skydoves/flexible/core/FlexibleSheetValue;Lkotlin/jvm/functions/Function1;Lcom/skydoves/flexible/core/FlexibleSheetHost;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun animateTo (Lcom/skydoves/flexible/core/FlexibleSheetValue;FLandroidx/compose/animation/core/AnimationSpec;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun animateTo$default (Lcom/skydoves/flexible/core/FlexibleSheetState;Lcom/skydoves/flexible/core/FlexibleSheetValue;FLandroidx/compose/animation/core/AnimationSpec;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 	public final fun fullyExpand (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -41,6 +49,7 @@ public final class com/skydoves/flexible/core/FlexibleSheetState {
 	public final fun getHasFullyExpandedState ()Z
 	public final fun getHasIntermediatelyExpandedState ()Z
 	public final fun getHasSlightlyExpandedState ()Z
+	public final fun getSheetHost ()Lcom/skydoves/flexible/core/FlexibleSheetHost;
 	public final fun getSkipHiddenState ()Z
 	public final fun getSkipIntermediatelyExpanded ()Z
 	public final fun getSkipSlightlyExpanded ()Z
@@ -63,7 +72,7 @@ public final class com/skydoves/flexible/core/FlexibleSheetState {
 }
 
 public final class com/skydoves/flexible/core/FlexibleSheetStateKt {
-	public static final fun rememberFlexibleBottomSheetState (ZZZLcom/skydoves/flexible/core/FlexibleSheetValue;ZZZLandroidx/compose/animation/core/AnimationSpec;Lcom/skydoves/flexible/core/FlexibleSheetSize;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)Lcom/skydoves/flexible/core/FlexibleSheetState;
+	public static final fun rememberFlexibleBottomSheetState (ZZZLcom/skydoves/flexible/core/FlexibleSheetValue;ZZZLandroidx/compose/animation/core/AnimationSpec;Lcom/skydoves/flexible/core/FlexibleSheetSize;Lcom/skydoves/flexible/core/FlexibleSheetHost;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;III)Lcom/skydoves/flexible/core/FlexibleSheetState;
 }
 
 public final class com/skydoves/flexible/core/FlexibleSheetValue : java/lang/Enum {
